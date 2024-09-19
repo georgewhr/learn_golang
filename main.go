@@ -14,11 +14,18 @@ func main() {
 	nums := twoSum(b, 9)
 	fmt.Println(nums)
 
+	// a := &b
+	// fmt.Println("asdasd %d", (*a)[0])
+
 	myList := List{}
 	myList.Insert(5)
 	myList.Insert(6)
 	myList.PrintList()
-	myList.PrintList()
+	// myList.PrintList()
+
+	myHashMap := internal.InitHashMap()
+
+	fmt.Println(myHashMap.BackingArr[0])
 
 }
 

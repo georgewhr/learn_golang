@@ -12,8 +12,7 @@ type LinkedList struct {
 }
 
 func (n *LinkedList) Insert(data int) {
-	var newNode = new(Node)
-	newNode.Data = data
+	var newNode = &Node{Data: data}
 	if n == nil {
 		n.head = newNode
 	} else {
