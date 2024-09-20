@@ -5,7 +5,7 @@ import (
 	"george/internal"
 )
 
-type Node = internal.Node
+type ListNode = internal.ListNode
 type List = internal.LinkedList
 
 func main() {
@@ -18,20 +18,31 @@ func main() {
 	// fmt.Println("asdasd %d", (*a)[0])
 
 	myList := List{}
-	myList.Insert(5)
-	myList.Insert(6)
+	myList.Insert(9)
+	myList.Insert(9)
+	myList.Insert(9)
+
+	myList1 := List{}
+	myList1.Insert(9)
+	myList1.Insert(9)
+	myList1.Insert(9)
+
 	myList.PrintList()
-	// myList.PrintList()
+	myList1.PrintList()
 
-	myHashMap := internal.InitHashMap()
+	myList2 := List{}
+	myList2.Head = add2List(myList.Head, myList1.Head)
+	myList2.PrintList()
 
-	fmt.Println(myHashMap.BackingArr[0])
+	// myHashMap := internal.InitHashMap()
+
+	// fmt.Println(myHashMap.BackingArr[0])
 
 }
 
-func printLinkedList(head *internal.Node) {
+func printLinkedList(head *internal.ListNode) {
 	for head != nil {
-		fmt.Println(head.Data)
+		fmt.Println(head.Val)
 		head = head.Next
 	}
 }
@@ -53,6 +64,48 @@ func twoSum(nums []int, target int) []int {
 	return nil
 }
 
-func add2List(l1 *Node, l2 Node) {
+func add2List(l1 *ListNode, l2 *ListNode) *ListNode {
+	var tempNode *ListNode
+	headNode := tempNode
+	carry := 0
+	for l1 != nil && l2 != nil {
+		sum := (l1.Val + l2.Val + carry) % 10
+		carry = (l1.Val + l2.Val + carry) / 10
+		newNode := &ListNode{Val: sum}
+		if headNode == nil {
+			headNode = newNode
+			tempNode = newNode
+		} else {
+			tempNode.Next = newNode
+			tempNode = tempNode.Next
+		}
+		l1 = l1.Next
+		l2 = l2.Next
+	}
+
+	for l1 != nil {
+		val := (l1.Val + carry) % 10
+		carry = (l1.Val + carry) / 10
+		newNode := &ListNode{Val: val}
+		tempNode.Next = newNode
+		tempNode = tempNode.Next
+		l1 = l1.Next
+	}
+
+	for l2 != nil {
+		val := (l2.Val + carry) % 10
+		carry = (l2.Val + carry) / 10
+		newNode := &ListNode{Val: val}
+		tempNode.Next = newNode
+		tempNode = tempNode.Next
+		l2 = l2.Next
+	}
+
+	if carry > 0 {
+		newNode := &ListNode{Val: carry}
+		tempNode.Next = newNode
+	}
+
+	return headNode
 
 }

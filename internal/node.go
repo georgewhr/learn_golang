@@ -2,29 +2,30 @@ package internal
 
 import "fmt"
 
-type Node struct {
-	Data int
-	Next *Node
+type ListNode struct {
+	Val  int
+	Next *ListNode
 }
 
 type LinkedList struct {
-	head *Node
+	Head *ListNode
 }
 
 func (n *LinkedList) Insert(data int) {
-	var newNode = &Node{Data: data}
+	var newNode = &ListNode{Val: data}
 	if n == nil {
-		n.head = newNode
+		n.Head = newNode
 	} else {
-		newNode.Next = n.head
-		n.head = newNode
+		newNode.Next = n.Head
+		n.Head = newNode
 	}
 }
 
 func (n *LinkedList) PrintList() {
-	temp := n.head
+	temp := n.Head
 	for temp != nil {
-		fmt.Println(temp.Data)
+		fmt.Printf("%d, ", temp.Val)
 		temp = temp.Next
 	}
+	fmt.Printf("\n")
 }
