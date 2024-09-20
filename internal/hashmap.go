@@ -1,3 +1,16 @@
+/*
+Key note of a HashMap
+1.Has a backing array with a initialized size
+2.Handle collision, each index is the hash code, then append the list with key and value
+3.When to extend the size? define a load factor, resize hashtable will happen if 1), collision to much 2) bucket is near factor
+
+Method:
+Put(k, v), null or previous value
+Get(k), null or non-nil value
+hash()
+resize()
+*/
+
 package internal
 
 const MAP_SIZE = 50
@@ -16,7 +29,7 @@ func InitHashMap() *HashMap {
 	return &HashMap{BackingArr: make([]*HashNode, MAP_SIZE)}
 }
 
-func (h *HashMap) InsertHashMap(key int, value int) {
+func (h *HashMap) Put(key int, value int) {
 	index := getIndex(key)
 
 	if h.BackingArr[index] == nil {
