@@ -18,7 +18,7 @@ const MAP_SIZE = 50
 type HashNode struct {
 	key  int
 	val  int
-	Next *HashNode
+	next *HashNode
 }
 
 type HashMap struct {
@@ -29,12 +29,31 @@ func InitHashMap() *HashMap {
 	return &HashMap{BackingArr: make([]*HashNode, MAP_SIZE)}
 }
 
-func (h *HashMap) Put(key int, value int) {
+func (h *HashMap) Put(key int, value int) int {
 	index := getIndex(key)
 
 	if h.BackingArr[index] == nil {
+		h.BackingArr[index] = &HashNode{key: key, val: value}
+	} else {
+		headNode := h.BackingArr[index]
+		for headNode.next != nil {
+			if headNode.key == key {
+				previousVal := headNode.key
+				headNode.val = value
+				return previousVal
+			}
+			headNode = headNode.next
+		}
 
+		if headNode.key == key {
+			previousVal := headNode.key
+			headNode.val = value
+			return previousVal
+		}
+
+		headNode.next = &HashNode{key: key, val: value}
 	}
+	return -1
 
 }
 
