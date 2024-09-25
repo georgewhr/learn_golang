@@ -22,6 +22,9 @@ func main() {
 	newArr := findMedianSortedArrays(sortedA, sortedB)
 	fmt.Printf("number is %f", newArr)
 
+	testStr := longestPalindromeFromMiddle("babc")
+	fmt.Printf("number is %s", testStr)
+
 	// a := &b
 	// fmt.Println("asdasd %d", (*a)[0])
 
@@ -235,4 +238,76 @@ func mergeSortedArray(nums1 []int, nums2 []int) []int {
 	}
 	return mergedArr
 
+}
+
+/* Input: s = "babad"
+Output: "bab"
+BF:
+for(p1 < len, p2<0)
+  if(arr[p1] == arr[p2])
+*/
+
+func longestPalindromeBF(s string) string {
+	sLen := len(s)
+	p1, p2 := 0, 0
+	for p1 < sLen {
+		for p2 = p1 + 1; p2 < sLen; p2++ {
+			p3, p4 := p1, p2
+			for p3 <= p4 {
+				if s[p3] == s[p4] {
+					p4--
+					p3++
+				}
+			}
+			if p3 > p4 {
+				return s[p1:p2]
+			}
+		}
+		p1++
+	}
+	return s
+}
+
+/*
+	Input: s = "babad"
+
+Output: "bab"
+BF:
+for(p1 < len, p2<0)
+
+	if(arr[p1] == arr[p2])
+
+bab
+cbbd
+
+p1,p2,p3 = 0
+babad
+abb
+*/
+func longestPalindromeFromMiddle(s string) string {
+	sLen := len(s)
+	p1, p2, p3, maxLen := 0, 0, 0, 0
+	var maxStr string
+
+	for p1 < sLen {
+
+		for j := 0; j <= 1; j++ {
+
+			p2, p3 = p1, p1+j
+
+			for p2 >= 0 && p3 < sLen {
+				if s[p2] != s[p3] {
+					break
+				}
+				if p3-p2 >= maxLen {
+					maxLen = p3 - p2
+					maxStr = s[p2 : p3+1]
+				}
+				p2--
+				p3++
+			}
+		}
+		p1++
+	}
+	return maxStr
 }
