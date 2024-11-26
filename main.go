@@ -13,7 +13,10 @@ type PriorityQueue = internal.PriorityQueue
 func main() {
 	fmt.Println("Hello, world.")
 
-	test := []string{"fl", "fla"}
+	// test := []string{"cir", "car"}
+	test := []string{"fla", "flw"}
+	test1 := "abc"
+	fmt.Printf("number is %s", test1[0:1])
 	output := longestCommonPrefix(test)
 	fmt.Printf("number is %f", output)
 	// b := []int{2, 7, 11, 13}
@@ -441,7 +444,6 @@ func isPalindrome(x int) bool {
 func longestCommonPrefix(strs []string) string {
 
 	myMap := make(map[byte]int)
-	// retStr := make([]byte, len(strs))
 	shortestStrLen := len(strs[0])
 	shortestStr := strs[0]
 	sliceEnd := 0
@@ -454,17 +456,22 @@ func longestCommonPrefix(strs []string) string {
 	}
 	originalStrLen := len(strs)
 
+	var thisChar byte
 	for l := 0; l < shortestStrLen; l++ {
 
 		for i := 0; i < len(strs); i++ {
-			myMap[strs[i][l]]++
-			if myMap[strs[i][l]] == originalStrLen {
+			thisChar = strs[i][l]
+			myMap[thisChar]++
+			if myMap[thisChar] == originalStrLen {
 				sliceEnd++
-				myMap[strs[i][l]] = 0
+				myMap[thisChar] = 0
 			}
+		}
+
+		if myMap[thisChar] != 0 {
+			return shortestStr[0:sliceEnd]
 		}
 
 	}
 	return shortestStr[0:sliceEnd]
-
 }
