@@ -12,18 +12,27 @@ type PriorityQueue = internal.PriorityQueue
 
 func main() {
 	fmt.Println("Hello, world.")
-	b := []int{2, 7, 11, 13}
-	nums := twoSum(b, 9)
-	fmt.Println(nums)
 
-	sortedA := []int{1, 2}
-	sortedB := []int{3, 4}
+	test := []string{"fl", "fla"}
+	output := longestCommonPrefix(test)
+	fmt.Printf("number is %f", output)
+	// b := []int{2, 7, 11, 13}
+	// nums := twoSum(b, 9)
+	// fmt.Println(nums)
 
-	newArr := findMedianSortedArrays(sortedA, sortedB)
-	fmt.Printf("number is %f", newArr)
+	// sortedA := []int{1, 2}
+	// sortedB := []int{3, 4}
 
-	testStr := longestPalindromeFromMiddle("babc")
-	fmt.Printf("number is %s", testStr)
+	// newArr := findMedianSortedArrays(sortedA, sortedB)
+	// fmt.Printf("number is %f", newArr)
+
+	// testStr := longestPalindromeFromMiddle("babc")
+	// fmt.Printf("number is %s", testStr)
+
+	// testNum := reverse(1534236469)
+	// fmt.Printf("number is %d", testNum)
+
+	// isPalindrome(123)
 
 	// a := &b
 	// fmt.Println("asdasd %d", (*a)[0])
@@ -59,6 +68,8 @@ func printLinkedList(head *internal.ListNode) {
 		head = head.Next
 	}
 }
+
+// [2,7,11,15], target = 9
 
 func twoSum(nums []int, target int) []int {
 
@@ -310,4 +321,150 @@ func longestPalindromeFromMiddle(s string) string {
 		p1++
 	}
 	return maxStr
+}
+
+/*
+input: 123
+output: 321
+123/10 = 12, 3
+12/10 = 1, 2,
+1/10 = 0, 1
+
+ret = ret*10 + 3, 3
+ret = 32
+ret = 320 + 1
+
+input:-123
+output:-321
+
+123
+ret = 3
+x = 12
+
+ret = 30 + 2 = 32
+x = 1
+
+ret = 320 + 1 = 321
+x = 0
+
+345
+
+ret = 345%10 = 5
+x = 34
+
+ret = 5*10 + 34%10 = 54
+x = 3
+
+ret = 540 + 3
+
+
+
+*/
+
+func reverse(x int) int {
+
+	ret := 0
+
+	for x != 0 {
+		ret = ret*10 + x%10
+		if ret > 2147483647 || ret < -2147483648 {
+			return 0
+		}
+		x = x / 10
+	}
+
+	return ret
+
+}
+
+// "432" - 432
+// "001" - 1
+// "abc12" - 12
+/*
+result = 0
+result = result  * 10 + digit
+
+*/
+
+func myAtoi(s string) int {
+
+	result := 0
+
+	for i := 0; i < len(s); i++ {
+		// Skip leading white space
+		if s[i] == ' ' {
+			continue
+		}
+
+		digit := int(s[i] - '0')
+		result = result*10 + digit
+	}
+
+	return result
+
+}
+
+// 123
+func isPalindrome(x int) bool {
+
+	if x < 0 {
+		return false
+	}
+	slice := make([]int, 0)
+	for x != 0 {
+		ld := x % 10
+		slice = append(slice, ld)
+		x = x / 10
+	}
+
+	len := len(slice)
+
+	m := 0
+	n := len - 1
+
+	for m < len && n >= 0 {
+		if slice[m] != slice[n] {
+			return false
+		}
+		n--
+		m++
+
+	}
+	return true
+
+}
+
+// Input stes = ["fla", "flea]
+// find the shortest string of the list, becasue the common prefix string cannot be longer than the shortest string
+// get the lenght of shortest string
+// create a nested loop to loop the entire string list and compare until we reach to the shortest string length
+func longestCommonPrefix(strs []string) string {
+
+	myMap := make(map[byte]int)
+	// retStr := make([]byte, len(strs))
+	shortestStrLen := len(strs[0])
+	shortestStr := strs[0]
+	sliceEnd := 0
+	for i := 0; i < len(strs); i++ {
+
+		if len(strs[i]) < shortestStrLen {
+			shortestStrLen = len(strs[i])
+			shortestStr = strs[i]
+		}
+	}
+	originalStrLen := len(strs)
+
+	for l := 0; l < shortestStrLen; l++ {
+
+		for i := 0; i < len(strs); i++ {
+			myMap[strs[i][l]]++
+			if myMap[strs[i][l]] == originalStrLen {
+				sliceEnd++
+				myMap[strs[i][l]] = 0
+			}
+		}
+
+	}
+	return shortestStr[0:sliceEnd]
+
 }
