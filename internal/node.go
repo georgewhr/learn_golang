@@ -29,3 +29,19 @@ func (n *LinkedList) PrintList() {
 	}
 	fmt.Printf("\n")
 }
+
+// 1 -> 2 ->3 ->4
+// 1 -> 2
+func (n *LinkedList) deleteList(data int) {
+	temp := n.Head
+	if data == temp.Val {
+		n.Head = temp.Next
+	}
+
+	for temp.Next != nil {
+		if data == temp.Next.Val {
+			temp.Next = temp.Next.Next
+		}
+		temp = temp.Next
+	}
+}

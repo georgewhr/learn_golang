@@ -9,6 +9,7 @@ import (
 type ListNode = internal.ListNode
 type List = internal.LinkedList
 type PriorityQueue = internal.PriorityQueue
+type Stack = internal.Stack
 
 func main() {
 	fmt.Println("Hello, world.")
@@ -19,6 +20,16 @@ func main() {
 	fmt.Printf("number is %s", test1[0:1])
 	output := longestCommonPrefix(test)
 	fmt.Printf("number is %f", output)
+
+	myList := List{}
+	myList.Insert(1)
+	myList.Insert(2)
+	myList.Insert(3)
+	myList.Insert(4)
+	myList.Insert(5)
+
+	myNode := removeNthNodeFromEndofList(myList.Head, 2)
+	fmt.Printf("number is %f", myNode.Val)
 	// b := []int{2, 7, 11, 13}
 	// nums := twoSum(b, 9)
 	// fmt.Println(nums)
@@ -40,11 +51,6 @@ func main() {
 	// a := &b
 	// fmt.Println("asdasd %d", (*a)[0])
 
-	// myList := List{}
-	// myList.Insert(9)
-	// myList.Insert(9)
-	// myList.Insert(9)
-
 	// myList1 := List{}
 	// myList1.Insert(9)
 	// myList1.Insert(9)
@@ -62,6 +68,17 @@ func main() {
 	// myHashMap := internal.InitHashMap()
 
 	// fmt.Println(myHashMap.BackingArr[0])
+
+	myStack := Stack{}
+	myStack.Push('a')
+	myStack.Push('b')
+	// myStack.Push(3)
+	myStack.PrintStack()
+	ss := myStack.Pop()
+	fmt.Printf("Successfully cast to rune: %c\n", ss.(rune))
+	myStack.PrintStack()
+	result := isValidParenthese("()")
+	fmt.Println(result)
 
 }
 
@@ -474,4 +491,178 @@ func longestCommonPrefix(strs []string) string {
 
 	}
 	return shortestStr[0:sliceEnd]
+}
+
+/*
+input, an array of integers
+output, return all the possible triplets array that sum of them is equal to zero
+example,
+*/
+
+// func threeSum(number []int) [][]int {
+
+// }
+
+/*
+Remove nth node from the end of list
+example 1, n0 -> n1 -> n2, position = 1, output: n0->n1
+example 1, n0 -> n1 -> n2, position = 2, output: n0->n2
+example 1, n0 -> n1 -> n2, position = 0, output: n0->n1
+example , n0 -> n1 -> n2 ->    n3 ->                  n4, position = 2, output: n0->n1->n3->n4
+                p1    p1.next  p1.next.next           p2
+
+appraoch: use two pointers, with position n distance, walk through the list unitl the 2nd pointer.next is null.
+1. init 2 pointers, let p1.next and p2 has position n distance
+      n0 -> n1 -> n2 -> n3 -> n4, n = 2
+	p1.next        p2
+2. walk through the list, until p2.next is null
+	    n0 -> n1 -> n2 -> n3 -> n4,
+		       p1      p1.next    p2
+
+3. do the skip
+ p1.next = p1.next.next
+
+
+*/
+
+func removeNthNodeFromEndofList(head *ListNode, n int) *ListNode {
+
+	p1, p2 := head, head
+
+	for i := 0; i < n; i++ {
+		p2 = p2.Next
+	}
+
+	if p2 == nil {
+		return head.Next
+	}
+
+	for p2.Next != nil {
+		p1 = p1.Next
+		p2 = p2.Next
+	}
+
+	p1.Next = p1.Next.Next
+
+	return head
+
+	// p1 := &ListNode{Val: 0, Next: head}
+	// p2 := head
+	// i := n
+	// for i > 0 {
+	// 	p2 = p2.Next
+	// 	i--
+	// }
+
+	// for p2.Next != nil {
+	// 	p1 = p1.Next
+	// 	p2 = p2.Next
+	// }
+
+	// rtNode := &ListNode{Val: p1.Next.Val, Next: p1.Next}
+	// p1.Next = p1.Next.Next
+	// return rtNode
+
+	// slow, fast := head, head
+	// for i := 0; i < n; i++ {
+	//     fast = fast.Next
+	// }
+	// if fast == nil {
+	//     return head.Next
+	// }
+	// for fast.Next != nil {
+	//     fast = fast.Next
+	//     slow = slow.Next
+	// }
+	// slow.Next = slow.Next.Next
+	// return head
+}
+
+/*
+	Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+// (), valid
+// {}[],valid
+// {[]}, valid
+// {[}, invalid
+
+Requirements:
+only 3 sets of characters, so we can hard code the check.
+
+Approach, use stack.
+input: "{[]}", s -> empty
+if(open bracbracketses) then stack.push(close brackets)
+else stack.pop and check if they are same,
+input: "[]}", s -> "}"
+input: "]}", s -> "}]"
+"){"
+")(){}"
+"[])"
+*/
+
+// TODO
+func isValidParenthese(s string) bool {
+
+	inputLenth := len(s)
+	myLocalStack := Stack{}
+
+	if inputLenth == 0 {
+		return true
+	}
+
+	for i := 0; i < inputLenth; i++ {
+		if s[i] == '{' {
+			myLocalStack.Push('}')
+
+		} else if s[i] == '[' {
+			myLocalStack.Push(']')
+
+		} else if s[i] == '(' {
+			myLocalStack.Push(')')
+		} else {
+
+			myLocalStack.Push(s[i])
+
+			if myLocalStack.Size() > 0 && myLocalStack.Pop().(rune) != rune(s[i]) {
+				return false
+			}
+			if s[i] == '}' || s[i] == ')' || s[i] == ']' {
+				myLocalStack.Push(s[i])
+			}
+		}
+
+	}
+
+	if myLocalStack.Size() != 0 {
+		return false
+	}
+
+	return true
+
+}
+
+// "(){}"
+// "){}"
+// "({}"
+func isValidParenthes2(s string) bool {
+
+	inputLenth := len(s)
+	myLocalStack := Stack{}
+
+	for i := 0; i < inputLenth; i++ {
+		if s[i] == '(' || s[i] == '[' || s[i] == '{' {
+			myLocalStack.Push(s[i])
+		} else if (s[i] == ')' && myLocalStack.Peek().(rune) == '(') || (s[i] == ']' && myLocalStack.Peek().(rune) == '(') || (s[i] == '}' && myLocalStack.Peek().(rune) == '{') {
+			myLocalStack.Pop()
+		} else {
+			return false
+		}
+
+	}
+
+	if myLocalStack.Size() > 0 {
+		return false
+	}
+	return true
+
 }
