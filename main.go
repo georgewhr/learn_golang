@@ -51,10 +51,23 @@ func main() {
 	// a := &b
 	// fmt.Println("asdasd %d", (*a)[0])
 
-	// myList1 := List{}
-	// myList1.Insert(9)
-	// myList1.Insert(9)
-	// myList1.Insert(9)
+	// newListNode := &ListNode{}
+	// for aa := 0; aa < 3; aa++ {
+	// 	newListNode = &ListNode{Val: aa}
+	// 	newListNode = newListNode.Next
+	// }
+
+	myList1 := List{}
+	myList1.Insert(5)
+	myList1.Insert(3)
+	myList1.Insert(1)
+
+	myList2 := List{}
+	myList2.Insert(6)
+	myList2.Insert(4)
+	myList2.Insert(2)
+	newHead := mergedSortedList(myList1.Head, myList2.Head)
+	fmt.Println(newHead)
 
 	// myList.PrintList()
 	// myList1.PrintList()
@@ -69,17 +82,58 @@ func main() {
 
 	// fmt.Println(myHashMap.BackingArr[0])
 
-	myStack := Stack{}
-	myStack.Push('a')
-	myStack.Push('b')
-	// myStack.Push(3)
-	myStack.PrintStack()
-	ss := myStack.Pop()
-	fmt.Printf("Successfully cast to rune: %c\n", ss.(rune))
-	myStack.PrintStack()
-	result := isValidParenthese("()")
-	fmt.Println(result)
+	// myStack := Stack{}
+	// myStack.Push('a')
+	// myStack.Push('b')
+	// // myStack.Push(3)
+	// myStack.PrintStack()
+	// ss := myStack.Pop()
+	// fmt.Printf("Successfully cast to rune: %c\n", ss.(rune))
+	// myStack.PrintStack()
+	// result := isValidParenthese("()")
+	// fmt.Println(result)
 
+	data := [][]int{
+		{1, 4, 5},
+		{1, 3, 4},
+		{2, 6},
+	}
+
+	// Construct the list of ListNode pointers
+	var lists []*ListNode
+	for _, vals := range data {
+		lists = append(lists, createList(vals))
+	}
+
+	for _, head := range lists {
+		printList(head)
+	}
+
+	newList := mergeKLists2(lists)
+	fmt.Println(*newList)
+
+}
+
+func printList(head *ListNode) {
+	for head != nil {
+		fmt.Print(head.Val, " -> ")
+		head = head.Next
+	}
+	fmt.Println("nil")
+}
+
+func createList(vals []int) *ListNode {
+	if len(vals) == 0 {
+		return nil
+	}
+
+	head := &ListNode{Val: vals[0]}
+	current := head
+	for _, v := range vals[1:] {
+		current.Next = &ListNode{Val: v}
+		current = current.Next
+	}
+	return head
 }
 
 func printLinkedList(head *internal.ListNode) {
@@ -665,4 +719,141 @@ func isValidParenthes2(s string) bool {
 	}
 	return true
 
+}
+
+/*
+Given 2 sorted list node:
+1->2->4
+3->5->7
+output: 1,2,3,4,5,7
+use 2 pointers each point to the list, and then go thourgh list until one of the pointer reach to null
+
+for(p1!=null && p2!=null)
+	if(p1.value <= p2.value)
+		newHead = Node(p1.value)
+		p1 = p1.next
+	else
+		newHead = Node(p2.value)
+		p2 = p2.next
+	newHead = newHead.next
+
+if(p1 != null)
+
+
+if(p2 != null)
+
+return newHead
+
+*/
+
+func mergedSortedList(list1 *ListNode, list2 *ListNode) *ListNode {
+
+	newListNode := &ListNode{}
+	rtHead := newListNode
+
+	for list1 != nil && list2 != nil {
+		if list1.Val <= list2.Val {
+			newListNode.Next = &ListNode{Val: list1.Val}
+			list1 = list1.Next
+
+		} else {
+			newListNode.Next = &ListNode{Val: list2.Val}
+			list2 = list2.Next
+		}
+		newListNode = newListNode.Next
+
+	}
+
+	for list1 != nil {
+		newListNode.Next = &ListNode{Val: list1.Val}
+		list1 = list1.Next
+		newListNode = newListNode.Next
+	}
+
+	for list2 != nil {
+		newListNode.Next = &ListNode{Val: list2.Val}
+		list2 = list2.Next
+		newListNode = newListNode.Next
+	}
+
+	return rtHead.Next
+
+}
+
+/*
+1->2->4
+3->5->7
+8->9->10
+
+User merge sort to divide the problem to merge only 2 lists or 1
+Merge sort:
+ 1. Recursion, likely a helper function
+ 2. condition when to call merge2List
+ 3. condition to return if there is only 1 list
+ 4. find mid, start and end pointer
+*/
+func mergeKLists(originalList []*ListNode) *ListNode {
+	if originalList == nil {
+		return nil
+	}
+
+	return mergeKSortedListHelper(originalList, 0, len(originalList)-1)
+
+}
+
+// where recursion happen
+func mergeKSortedListHelper(list []*ListNode, start int, end int) *ListNode {
+
+	if start == end {
+		return list[start]
+	}
+
+	if start == end+1 {
+		return mergedSortedList(list[start], list[end])
+	}
+
+	// keep dividing
+
+	mid := start + (end-start)/2
+
+	leftList := mergeKSortedListHelper(list, start, mid)
+	rightList := mergeKSortedListHelper(list, mid+1, end)
+
+	return mergedSortedList(leftList, rightList)
+
+}
+
+/*
+Another approach is to jump 2 items
+*/
+func mergeKLists2(lists []*ListNode) *ListNode {
+	if lists == nil {
+		return nil
+	}
+
+	for len(lists) > 1 {
+
+		var mergedList []*ListNode
+		for i := 0; i < len(lists); i += 2 {
+			m := i
+			n := i + 1
+
+			var aa *ListNode
+
+			if n < len(lists) {
+
+				aa = mergedSortedList(lists[m], lists[n])
+
+			} else {
+				aa = mergedSortedList(lists[m], nil)
+			}
+
+			mergedList = append(mergedList, aa)
+		}
+
+		lists = mergedList
+
+	}
+
+	return lists[0]
 }
