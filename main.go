@@ -112,6 +112,11 @@ func main() {
 	newList := mergeKLists2(lists)
 	fmt.Println(*newList)
 
+	sampleArr := [3]int{1, 1, 2}
+
+	results := removeDuplicatedArr(sampleArr[:])
+	fmt.Println(results)
+
 }
 
 func printList(head *ListNode) {
@@ -856,4 +861,114 @@ func mergeKLists2(lists []*ListNode) *ListNode {
 	}
 
 	return lists[0]
+}
+
+/*
+input list = 1 -> 2 -> 3 -> 4
+output = [2,1,4,3]
+Constraint: cannot modify the valie, but switch the node.
+*/
+
+// Version that directly change value
+func SwapPair(list *ListNode) *ListNode {
+	var temp int
+
+	var p1, p2 *ListNode
+	p1 = list
+	p2 = list.Next
+
+	for p2 != nil {
+		temp = p1.Val
+		p1.Val = p2.Val
+		p2.Val = temp
+		p1 = p1.Next
+		p2 = p2.Next
+	}
+
+	return list
+
+}
+
+/*Version that not change value but change nodes
+input  = 1 -> 2 -> 3 -> 4
+output = 2 -> 1 -> 4 -> 3
+*/
+
+func SwapPairNode(list *ListNode) *ListNode {
+
+	p1 := list
+	p2 := p1.Next
+
+	p3 := p1.Next.Next
+
+	for p3 != nil {
+		p2.Next = p1
+		p1.Next = p3.Next
+		p1 = p3
+		p2 = p3.Next
+
+	}
+
+	return nil
+
+}
+
+/*
+Remove duplicated integer in an array,
+Return the number of unique items.
+example:
+[1,1,2] -> [1,2,_], return 2
+
+Constraints:
+
+1 <= nums.length <= 3 * 104
+-100 <= nums[i] <= 100
+nums is sorted in non-decreasing order.
+
+
+solution 1:
+use 2 pointers, p1 and p2
+p1 = 0
+p2 = p1 + 1
+for(p2 < len(nums))
+	if(p2 == p1)
+	  p2++
+	else
+	  p1++
+	  p1 = p2
+	  p2 ++
+for(p1 < len(nums))
+  reset(p1)
+
+
+
+
+*/
+
+func removeDuplicatedArr(nums []int) int {
+
+	p1 := 0
+	p2 := 1
+
+	for p2 < len(nums) {
+		if nums[p1] != nums[p2] {
+			p1++
+			nums[p1] = nums[p2]
+		}
+		p2++
+	}
+	p1++
+	rt := p1
+
+	for p1 < len(nums) {
+		nums[p1] = '_'
+		p1++
+	}
+
+	return rt
+
+}
+
+func removeElement(nums []int, val int) int {
+
 }
