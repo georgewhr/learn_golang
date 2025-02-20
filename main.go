@@ -4,12 +4,14 @@ import (
 	"container/heap"
 	"fmt"
 	"george/internal"
+	"math"
 )
 
 type ListNode = internal.ListNode
 type List = internal.LinkedList
 type PriorityQueue = internal.PriorityQueue
 type Stack = internal.Stack
+type TreeNode = internal.TreeNode
 
 func main() {
 	fmt.Println("Hello, world.")
@@ -30,6 +32,9 @@ func main() {
 
 	myNode := removeNthNodeFromEndofList(myList.Head, 2)
 	fmt.Printf("number is %f", myNode.Val)
+
+	var georgetest = []int{2, 0, 2, 1, 1, 0}
+	sortColors(georgetest)
 	// b := []int{2, 7, 11, 13}
 	// nums := twoSum(b, 9)
 	// fmt.Println(nums)
@@ -58,17 +63,21 @@ func main() {
 	// }
 
 	myList1 := List{}
-	myList1.Insert(5)
-	myList1.Insert(3)
 	myList1.Insert(1)
+	myList1.Insert(2)
+	myList1.Insert(3)
+	myList1.Insert(4)
+	myList1.Insert(5)
 
-	myList2 := List{}
-	myList2.Insert(6)
-	myList2.Insert(4)
-	myList2.Insert(2)
-	newHead := mergedSortedList(myList1.Head, myList2.Head)
+	// myList2 := List{}
+	// myList2.Insert(6)
+	// myList2.Insert(4)
+	// myList2.Insert(2)
+	// newHead := mergedSortedList(myList1.Head, myList2.Head)
+	// fmt.Println(newHead)
+
+	newHead := rotateRight(myList1.Head, 2)
 	fmt.Println(newHead)
-
 	// myList.PrintList()
 	// myList1.PrintList()
 
@@ -969,6 +978,330 @@ func removeDuplicatedArr(nums []int) int {
 
 }
 
+/*
+arr = [2,3,3,2], val = 3
+arr1 = [2,2,-,-]
+[0,1,2,2,3,0,4,2], 2
+*/
+
 func removeElement(nums []int, val int) int {
 
+	readIndex, writeIndex := 0, 0
+
+	for readIndex < len(nums) {
+		if nums[readIndex] != val {
+			nums[writeIndex] = nums[readIndex]
+			writeIndex++
+		}
+		readIndex++
+	}
+
+	rt := len(nums) - writeIndex
+
+	for writeIndex < len(nums) {
+		nums[writeIndex] = '_'
+		writeIndex++
+	}
+
+	return rt
+
+}
+
+/*
+find the first occurance of sub string
+Input: haystack = "sadbutsad", needle = "but", return 3 as index.
+haystack="aaa", needle="aaaa"
+"mississippi", "issipi"
+*/
+
+func Strstr(haystack string, needle string) int {
+	neddleLen := len(needle)
+	haystackLen := len(haystack)
+
+	if neddleLen > haystackLen {
+		return -1
+	}
+
+	for i := 0; i < haystackLen; i++ {
+		temp := i
+
+		if temp > haystackLen-neddleLen {
+			return -1
+		}
+
+		for j := 0; j < neddleLen; j++ {
+			if haystack[temp] != needle[j] {
+				break
+			}
+			temp++
+		}
+		if temp-i == neddleLen {
+			return i
+		}
+	}
+
+	return -1
+
+}
+
+/*
+binary serach with sorted array
+*/
+func binarySearchRecrusion(nums []int, target int) int {
+
+	return binarySearchHelper(nums, 0, len(nums), target)
+}
+
+func binarySearchHelper(nums []int, low int, high int, target int) int {
+
+	mid := low + (high-low)/2
+	if nums[mid] == target {
+		return mid
+	}
+
+	if target >= nums[mid] {
+
+		return binarySearchHelper(nums, mid, high, target)
+
+	}
+
+	if target < nums[mid] {
+		return binarySearchHelper(nums, low, mid-1, target)
+	}
+
+	return -1
+
+}
+
+/*
+Given a sorted array with rotation and target, return index
+[4,5,6,7,0,1,2],target = 0, return 4
+
+low, mid, high
+
+	for low <= high {
+	   if nums[mid] == target:
+	      found
+
+	    if nums[low] <= nums[mid] {
+	       if target <= nums[mid] and target >  nums[low], normal binary search, apply binary search
+		      high = mid
+			  mid = low + (high-low) / 2
+		   else
+		      low = mid
+
+	   //target is in the right
+		else:
+	       if target > nums[mid] and target <  nums[high]
+		      low = mid
+			  mid = low + (high-low) / 2
+		   else
+		      high = mid
+
+}
+*/
+func searchRotatedArray(nums []int, target int) int {
+	return 1
+}
+
+/*
+
+Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value.
+
+If target is not found in the array, return [-1, -1].
+
+You must write an algorithm with O(log n) runtime complexity.
+
+Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]
+
+*/
+
+func searchRange(nums []int, target int) []int {
+
+	first, last := -1, -1
+
+	if len(nums) == 0 {
+		return []int{first, last}
+	}
+
+	for i, _ := range nums {
+
+		if target != nums[i] {
+			continue
+		}
+
+		if first == -1 {
+			first = i
+		}
+
+		last = i
+
+	}
+
+	return []int{first, last}
+
+}
+
+/*
+Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.
+
+You must write an algorithm with O(log n) runtime complexity.
+
+0,1,2,3,5  4
+*/
+
+func searchInsert(nums []int, target int) int {
+
+	if len(nums) == 0 {
+		return 0
+	}
+	for i, _ := range nums {
+
+		if target == nums[i] || target < nums[i] {
+			return i
+		}
+
+	}
+
+	return len(nums)
+
+}
+
+/*
+
+Given an integer array nums, find the
+subarray with the largest sum, and return its sum.
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: The subarray [4,-1,2,1] has the largest sum 6.
+tip: only positive number can contirbute to max number, so we can ignore negative number
+
+*/
+
+func maxSubArray(nums []int) int {
+
+	current_max := 0
+	global_max := math.MinInt
+	for i, _ := range nums {
+		current_max = current_max + nums[i]
+		if current_max <= 0 {
+			current_max = 0
+		} else {
+			global_max = checkBig(global_max, current_max)
+		}
+
+	}
+	return global_max
+
+}
+
+func checkBig(a int, b int) int {
+
+	if a > b {
+		return a
+	} else {
+		return b
+	}
+
+}
+
+/*
+Given a tree, find the lowest common ancestor.
+
+
+*/
+
+func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+
+	if p == root || q == root {
+		return root
+	}
+	leftNode := lowestCommonAncestor(root.Left, p, q)
+	rightNode := lowestCommonAncestor(root.Right, p, q)
+
+	if leftNode != nil && rightNode != nil {
+		return root
+	}
+
+	return nil
+
+}
+
+/*
+Rotate linkedList
+Input: head = [1,2,3,4,5], k = 2
+Output: [4,5,1,2,3]
+Set 2 pointers with K gap
+e.g, p1 is 3, and p2 is 5,
+p2.next = head
+rt = p1.next
+p1.next = nil
+return rt
+*/
+func rotateRight(head *ListNode, k int) *ListNode {
+
+	p1, p2 := head, head
+	for i := 0; i < k; i++ {
+		p2 = p2.Next
+
+	}
+
+	for p2.Next != nil {
+		p1 = p1.Next
+		p2 = p2.Next
+	}
+
+	p2.Next = head
+	rt := p1.Next
+	p1.Next = nil
+	return rt
+
+}
+
+/*
+Sort 3 colors.
+Input: nums = [2,0,2,1,1,0]
+Output: [0,0,1,1,2,2]
+*/
+func sortColors(nums []int) {
+	arr := [3]int{0}
+	for i, _ := range nums {
+		arr[nums[i]]++
+	}
+
+	var i int = 0
+	// var j int = 0
+	for i = 0; i < arr[0]; i++ {
+		nums[i] = 0
+	}
+
+	for j := 0; j < arr[1]; j++ {
+		nums[i] = 1
+		i++
+	}
+
+	for i < len(nums) {
+		nums[i] = 2
+		i++
+	}
+
+}
+func inorderTraversal(root *TreeNode) []int {
+
+	arr := []int{}
+	inorderTraversalHelper(root, &arr)
+	return arr
+
+}
+
+func inorderTraversalHelper(root *TreeNode, arr *[]int) {
+
+	if root == nil {
+		return
+	}
+
+	inorderTraversalHelper(root.Left, arr)
+	*arr = append(*arr, root.Val)
+	inorderTraversalHelper(root.Right, arr)
 }
