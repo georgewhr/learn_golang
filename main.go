@@ -91,9 +91,20 @@ func main() {
 
 	// fmt.Println(myHashMap.BackingArr[0])
 
-	// myStack := Stack{}
-	// myStack.Push('a')
-	// myStack.Push('b')
+	myStack := internal.InitStack(2)
+	myStack.Push('a')
+	myStack.Push('b')
+
+	myStack1 := internal.InitStack(3)
+	myStack1.Push('a')
+	myStack1.Push('b')
+
+	myQ := internal.InitQueue(5)
+	myQ.Add(1)
+	myQ.Add(2)
+	myQ.Add(3)
+	myQ.Remove()
+	myQ.Remove()
 	// // myStack.Push(3)
 	// myStack.PrintStack()
 	// ss := myStack.Pop()
@@ -1304,4 +1315,180 @@ func inorderTraversalHelper(root *TreeNode, arr *[]int) {
 	inorderTraversalHelper(root.Left, arr)
 	*arr = append(*arr, root.Val)
 	inorderTraversalHelper(root.Right, arr)
+}
+
+/*
+Valid means if in-order is ascending order.
+If root.Val is greater than left but less than right
+
+*/
+
+func isValidBST(root *TreeNode) bool {
+
+	if root == nil {
+		return true
+	}
+
+	if root.Left != nil && root.Val <= root.Left.Val {
+
+		return false
+
+	}
+
+	if root.Right != nil && root.Val > root.Right.Val {
+		return false
+
+	}
+	val1 := isValidBST(root.Left)
+
+	val2 := isValidBST(root.Right)
+
+	return val1 || val2
+
+}
+
+/*
+*
+  - Definition for a binary tree node.
+  - type TreeNode struct {
+  - Val int
+  - Left *TreeNode
+  - Right *TreeNode
+  - }
+*/
+func isSymmetric(root *TreeNode) bool {
+
+	if root == nil {
+		return true
+	}
+
+	q := []*TreeNode{root.Left, root.Right}
+
+	for len(q) != 0 {
+		left := q[0]
+		right := q[1]
+		q = q[2:]
+
+		if left == nil && right == nil {
+			continue
+		}
+		if left == nil || right == nil {
+			return false
+		}
+		if left.Val != right.Val {
+			return false
+		}
+
+		q = append(q, left.Left)
+		q = append(q, right.Right)
+
+		q = append(q, left.Right)
+		q = append(q, right.Left)
+
+	}
+	return true
+}
+
+// func checkSymeetric(arr []*TreeNode) bool {
+// 	i := 0
+// 	j := len(arr) - 1
+
+// 	if len(arr) == 1 {
+// 		return true
+// 	}
+
+// 	if len(arr)%2 != 0 {
+// 		return false
+// 	}
+
+// 	for i <= j {
+// 		if arr[i] != arr[j] {
+// 			return false
+// 		}
+// 		i++
+// 		j--
+// 	}
+// 	return true
+
+// }
+
+/*
+Level order tree,
+BST.
+DS needed, queue, a slice.
+q.enqueu(root)
+
+	for !q.empty(){
+	  new slice
+	  size = q.size()
+	  node = q.dequeu()
+	  for i = 0, i< size, i++
+	  	node = q.poll()
+		slice.append(node.val)
+	  	q.enqueue(root.right)
+
+	  checkSymeetric(slice)
+
+}
+*/
+func levelOrder(root *TreeNode) [][]int {
+	// q := internal.InitQueue(100)
+
+	q := []*TreeNode{root}
+
+	levelSlices := [][]int{}
+	if root == nil {
+		return levelSlices
+	}
+
+	for len(q) != 0 {
+		levelSize := len(q)
+		level := []int{}
+
+		for i := 0; i < levelSize; i++ {
+			node := q[0]
+			q = q[1:]
+			level = append(level, node.Val)
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		levelSlices = append(levelSlices, level)
+	}
+	return levelSlices
+}
+
+/*
+1. A method to add linkedList
+2. A method to pre-order travesal
+*/
+func flatten(root *TreeNode) {
+
+}
+
+func addListTail(head *TreeNode, val int) *TreeNode {
+
+	if head == nil {
+		return &internal.TreeNode{Val: val}
+	}
+	head.Right = addListTail(head.Right, val)
+	return head
+
+}
+
+/*
+[1,1,1,2,2,3], 2
+
+	m = {
+		1->3
+		2 - >2,
+		3 -> 1
+	}
+*/
+func topKFrequent(nums []int, k int) []int {
+	return nil
 }

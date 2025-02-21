@@ -23,40 +23,49 @@ Implementation approach
 // const INIT_SIZE = 12
 
 // backing slice for the stack
-type Stack []interface{}
+
+type Stack struct {
+	arr []interface{}
+}
+
+func InitStack(size int) *Stack {
+	return &Stack{
+		arr: make([]interface{}, 0, size),
+	}
+}
 
 func (s *Stack) Push(item interface{}) {
-	*s = append(*s, item)
+	s.arr = append(s.arr, item)
 }
 
 func (s *Stack) Pop() interface{} {
 
-	if len(*s) == 0 {
+	if len(s.arr) == 0 {
 		return nil
 	} else {
-		popItemIndex := len(*s) - 1
-		i := (*s)[popItemIndex]
-		*s = (*s)[:popItemIndex]
+		popItemIndex := len(s.arr) - 1
+		i := (s.arr)[popItemIndex]
+		s.arr = (s.arr)[:popItemIndex]
 		return i
 	}
 }
 
 func (s *Stack) Peek() interface{} {
 
-	if len(*s) == 0 {
+	if len(s.arr) == 0 {
 		return nil
 	} else {
-		popItemIndex := len(*s) - 1
-		return (*s)[popItemIndex]
+		popItemIndex := len(s.arr) - 1
+		return (s.arr)[popItemIndex]
 	}
 }
 
 func (s *Stack) Size() int {
-	return len(*s)
+	return len(s.arr)
 }
 
 func (s *Stack) isEmpty() bool {
-	if len(*s) == 0 {
+	if len(s.arr) == 0 {
 		return true
 	} else {
 		return false
@@ -64,5 +73,5 @@ func (s *Stack) isEmpty() bool {
 }
 
 func (s *Stack) PrintStack() {
-	fmt.Printf("Slice: %v\n", *s)
+	fmt.Printf("Slice: %v\n", s.arr)
 }
