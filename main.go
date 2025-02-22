@@ -1463,10 +1463,30 @@ func levelOrder(root *TreeNode) [][]int {
 }
 
 /*
-1. A method to add linkedList
+1. A method to add linkedList at end
 2. A method to pre-order travesal
+3. Remove Left node
+4. Use another variable to store the list
 */
 func flatten(root *TreeNode) {
+	if root == nil {
+		return
+	}
+
+	var myList *TreeNode
+
+	flattenHelper(root, myList)
+
+}
+
+func flattenHelper(root *TreeNode, myList *TreeNode) {
+
+	if root == nil {
+		return
+	}
+	myList = addListTail(myList, root.Val)
+	flattenHelper(root.Left, myList)
+	flattenHelper(root.Right, myList)
 
 }
 
@@ -1478,6 +1498,54 @@ func addListTail(head *TreeNode, val int) *TreeNode {
 	head.Right = addListTail(head.Right, val)
 	return head
 
+}
+
+/*
+Find max depth of the tree
+DFS search
+Post-order serach
+*/
+func maxDepth(root *TreeNode) int {
+	if root != nil {
+		return maxDepthHelper(root)
+	}
+	return 0
+
+}
+
+func maxDepthHelper(root *TreeNode) int {
+
+	if root == nil {
+		return 0
+	}
+
+	left := maxDepthHelper(root.Left) + 1
+	right := maxDepthHelper(root.Right) + 1
+	return checkMax(left, right)
+
+}
+
+func checkMax(a int, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
+}
+
+/*
+Invert tree
+*/
+func invertTree(root *TreeNode) *TreeNode {
+	if root != nil {
+		temp := root.Right
+		root.Right = root.Left
+		root.Left = temp
+		invertTree(root.Left)
+		invertTree(root.Right)
+	}
+
+	return root
 }
 
 /*
