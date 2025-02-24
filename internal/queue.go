@@ -30,6 +30,10 @@ readjust()
 can readjust the size, incerase size
 
 
+isFull()
+Can use a parameter to indicate if it's full or not
+
+
 a few conditions
 f and t should be able to loop the cap using %
 if f == t, means there is only 1 item, after that we can reset f =0, t = -1
