@@ -17,6 +17,7 @@ type LRUCache struct {
 	cap        int
 	backingMap map[int]*ListNode
 	double     *ListNode
+	doubleTail *ListNode
 }
 
 func Constructor(capacity int) *LRUCache {
@@ -69,7 +70,6 @@ if key present {
 	return -1
 
 }
-
 */
 
 func (this *LRUCache) get(key int) int {
@@ -86,6 +86,7 @@ func (this *LRUCache) addNode(val int) *ListNode {
 	newNode := &ListNode{Val: val, Next: nil}
 	if this.double == nil {
 		this.double = newNode
+		this.doubleTail = this.double
 	} else {
 		newNode.Next = this.double
 		this.double.Previous = newNode
@@ -99,9 +100,6 @@ func (this *LRUCache) removeNode(node *ListNode) {
 }
 
 func (this *LRUCache) removeTail() {
-	temp := this.double
-	for temp.Next != nil {
-		temp = temp.Next
-	}
-	temp.Previous.Next = nil
+	this.doubleTail.Previous.Next = nil
+	this.doubleTail = this.doubleTail.Previous
 }

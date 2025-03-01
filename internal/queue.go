@@ -46,6 +46,7 @@ type Queue struct {
 	front int
 	tail  int
 	cap   int
+	size  int
 }
 
 func InitQueue(cap int) *Queue {
@@ -58,7 +59,7 @@ func InitQueue(cap int) *Queue {
 }
 
 func (q *Queue) Add(item interface{}) int {
-	if (q.tail+1)%q.cap == q.front && (q.tail != -1) {
+	if q.size == q.cap {
 		return -1
 	}
 	q.arr = append(q.arr, item)
@@ -103,6 +104,6 @@ func (q *Queue) GetTail() interface{} {
 }
 
 func (q *Queue) GetSize() int {
-	return len(q.arr)
+	return q.size
 
 }

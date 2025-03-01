@@ -137,6 +137,9 @@ func main() {
 	results := removeDuplicatedArr(sampleArr[:])
 	fmt.Println(results)
 
+	test100 := []int{1, 2, 3, 4}
+	productExceptSelf(test100)
+
 }
 
 func printList(head *ListNode) {
@@ -1225,6 +1228,8 @@ Given a tree, find the lowest common ancestor.
 
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 
+	// find base cases, node cannot boe lower than its ancesotr, ancestor only is node it self
+	// or above it
 	if p == root || q == root {
 		return root
 	}
@@ -1552,11 +1557,433 @@ func invertTree(root *TreeNode) *TreeNode {
 [1,1,1,2,2,3], 2
 
 	m = {
-		1->3
+		1 -> 3,
 		2 - >2,
 		3 -> 1
+		-1: 2
 	}
+
+[_,1,2,3,_]
+
+[[],[3], [2,-1],[1]]
 */
 func topKFrequent(nums []int, k int) []int {
+	m := make(map[int]int)
+
+	for _, val := range nums {
+		m[val]++
+	}
+
+	bucket := make([][]int, len(nums)+1)
+
+	for k, v := range m {
+		bucket[v] = append(bucket[v], k)
+	}
+
+	ans := make([]int, 0, k)
+
+	for i := len(bucket) - 1; i >= 0; i-- {
+		for _, val := range bucket[i] {
+			if k > 0 {
+				ans = append(ans, val)
+				k--
+			}
+		}
+	}
+
+	return ans
+}
+
+func hasCycleHashTable(head *ListNode) bool {
+
+	m := make(map[*ListNode]bool)
+
+	currentNode := head
+
+	for currentNode != nil {
+		if m[currentNode] == true {
+			return true
+		}
+		m[currentNode] = true
+		currentNode = currentNode.Next
+	}
+	return false
+
+}
+
+func sumNumbers(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	return sumNumbersHelper(root, 0)
+
+}
+
+func sumNumbersHelper(root *TreeNode, sum int) int {
+
+	if root == nil {
+		return 0
+	}
+
+	if root.Left == nil && root.Right == nil {
+		return sum*10 + root.Val
+	}
+
+	sum = sum*10 + root.Val
+
+	return sumNumbersHelper(root.Left, sum) + sumNumbersHelper(root.Right, sum)
+
+}
+
+func lowestCommonAncestorp(root, p, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if p == root || q == root {
+		return root
+	}
+	left := lowestCommonAncestorp(root.Left, p, q)
+	right := lowestCommonAncestorp(root.Right, p, q)
+
+	if left != nil && right != nil {
+		return root
+	}
+
+	if left != nil {
+		return left
+	}
+
+	if right != nil {
+		return right
+	}
 	return nil
+
+}
+
+func isSameTree(p *TreeNode, q *TreeNode) bool {
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil {
+		return false
+	}
+
+	if q == nil {
+		return false
+	}
+
+	if q.Val != q.Val {
+		return false
+	}
+
+	left := isSameTree(p.Left, q.Left)
+	right := isSameTree(p.Right, q.Right)
+	return left && right
+
+}
+
+/*
+if p == root || q == root
+ return  root
+
+ if root.val>p.val && root.val < q.val || root.val > q.val && root.val < p.val
+  return root
+
+
+
+
+
+*/
+
+func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return root
+	}
+	if p == root || q == root {
+		return root
+	}
+
+	if root.Val < p.Val && root.Val < q.Val {
+		right := lowestCommonAncestorBST(root.Right, p, q)
+		if right != nil {
+			return right
+		}
+	}
+
+	if root.Val > p.Val && root.Val > q.Val {
+		left := lowestCommonAncestorBST(root.Left, p, q)
+		if left != nil {
+			return left
+		}
+	}
+
+	return root
+
+}
+
+/*
+
+Input: s = "anagram", t = "nagaram"
+a->3
+n->1
+g->1
+r->1
+m->1
+
+lettersAllLen = len(m) = 5
+for i in range t
+  if map[t[i]] not exist ; return false
+
+  map[t[i]] --
+
+  if map[t[i]]  == 0 {
+	lettersAllLen--
+  }
+
+*/
+
+/*
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
+*/
+func groupAnagrams(strs []string) [][]string {
+
+	set := make(map[[26]int][]string)
+
+	for _, val := range strs {
+		var chars [26]int
+		for _, c := range val {
+			chars[c-'a']++
+		}
+		set[chars] = append(set[chars], val)
+	}
+
+	var result [][]string
+
+	for _, v := range set {
+		result = append(result, v)
+	}
+
+	return result
+}
+
+/*
+Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+
+for i in range nums
+BF:
+
+	  j = 0
+	  product = 1
+	  while j < len(nums){
+		if j != i {
+			product = product * nums[j]
+		}
+	  }
+
+Optimized:
+
+nums[0] = nums[1] * nums[2] * nums[3] = y1
+nums[1] = nums[0] * nums[2] * nums[3], y1 / nums[1] * nums[0] = y2
+nums[2] = nums[0] * nums[1] * nums[3], y2 / nums[2] * nums[1] = y3
+nums[3] = nums[0] * nums[1] * nums[2], y3 / nums[3] * nums[2] = y4
+1,2,3,4
+*/
+func productExceptSelf(nums []int) []int {
+
+	product := 1
+	productArr := make([]int, len(nums))
+	for _, val := range nums[1:] {
+		product = product * val
+	}
+	productArr[0] = product
+
+	for i := 1; i < len(nums); i++ {
+		productArr[i] = product / nums[i] * nums[i-1]
+		product = productArr[i]
+	}
+	return productArr
+
+}
+
+/*
+
+Input: nums = [2,20,4,10,3,4,5]
+2,3,4,5
+
+Output: 4
+
+if (nums[i] - 1) not exist in map
+
+
+
+*/
+
+func longestConsecutiveBF(nums []int) int {
+
+	m := make(map[int]bool)
+
+	for i := 0; i < len(nums); i++ {
+		m[nums[i]] = true
+	}
+
+	maxSequenceLen := 0
+	for i := 0; i < len(nums); i++ {
+
+		val := m[nums[i]-1]
+		if val == false {
+			// nums[i] is the starting sequence
+			seq := 1
+			for {
+				if _, ok := m[i+seq]; ok {
+					seq++
+					continue
+				}
+
+				maxSequenceLen = max(maxSequenceLen, seq)
+				break
+			}
+
+		}
+
+	}
+
+	return maxSequenceLen
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+func getConcatenation(nums []int) []int {
+
+	ans := make([]int, 2*len(nums), 2*cap(nums))
+
+	for i, val := range nums {
+		ans[i] = val
+		ans[i+len(nums)] = val
+	}
+
+	return ans
+
+}
+
+/*
+Input: s = "racecar", t = "carrace"
+
+Output: true
+r 2
+a 2
+c 2
+e 1
+
+
+*/
+
+func validAngram(s string, t string) bool {
+
+	if len(s) != len(t) {
+		return false
+	}
+	m := make(map[rune]int)
+
+	for _, item := range s {
+		m[item]++
+	}
+
+	for _, item := range t {
+		if _, ok := m[item]; ok {
+			m[item]--
+			if m[item] == 0 {
+				delete(m, item)
+			}
+		} else {
+			return false
+		}
+	}
+
+	if len(m) == 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+/*
+Input:
+nums = [3,4,5,6], target = 7
+
+if m[target - nums[i]] is nill
+
+	m[i] = i
+
+else
+
+	return i, m[target - nums[i]]
+
+Output: [0,1]
+*/
+func twoSum1(arr []int, target int) {
+
+}
+
+/*
+Input: strs = ["act","pots","tops","cat","stop","hat"]
+
+Output: [["hat"],["act", "cat"],["stop", "pots", "tops"]]
+
+ 0-25
+ a, c, t
+ 1  1  1
+
+ Create a map, key is the alphabet array with character frequen for each work
+ e.g, act, cat will be same key and group together.
+
+
+
+
+
+*/
+
+func groupAnagramsDetail(strs []string) [][]string {
+
+	m := make(map[[26]int][]string)
+
+	for _, val := range strs {
+		var alphabetArr [26]int
+
+		for _, item := range val {
+			alphabetArr[item-'a']++
+		}
+		m[alphabetArr] = append(m[alphabetArr], val)
+	}
+
+	var result [][]string
+
+	for _, val := range m {
+		result = append(result, val)
+	}
+
+	return result
+
+}
+
+/*
+Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+Output: [1,2,2,3,5,6]
+Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
+The result of the merge is [1,2,2,3,5,6] with the underlined elements coming from nums1.
+*/
+func merge(nums1 []int, m int, nums2 []int, n int) {
+
+}
+
+func threeSum(nums []int) [][]int {
+
 }

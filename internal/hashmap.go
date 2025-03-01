@@ -13,7 +13,8 @@ resize()
 
 package internal
 
-const MAP_SIZE = 50
+const TABLE_INIT_CAP = 50
+const THREAD_SHOLD = 0.7
 
 type HashNode struct {
 	key  int
@@ -23,14 +24,22 @@ type HashNode struct {
 
 type HashMap struct {
 	BackingArr []*HashNode
+	tableSize  int
+	tableCap   int
 }
 
 func InitHashMap() *HashMap {
-	return &HashMap{BackingArr: make([]*HashNode, MAP_SIZE)}
+	return &HashMap{tableSize: 0,
+		tableCap:   TABLE_INIT_CAP,
+		BackingArr: make([]*HashNode, TABLE_INIT_CAP)}
 }
 
 func (h *HashMap) Put(key int, value int) int {
-	index := getIndex(key)
+	index := h.getIndex(key)
+
+	if float64(h.tableSize)/float64(h.tableCap) > 0.6 {
+		h.resize()
+	}
 
 	if h.BackingArr[index] == nil {
 		h.BackingArr[index] = &HashNode{key: key, val: value}
@@ -57,8 +66,8 @@ func (h *HashMap) Put(key int, value int) int {
 
 }
 
-func getIndex(key int) (index int) {
-	return int(hash(string(key))) % MAP_SIZE
+func (h *HashMap) getIndex(key int) (index int) {
+	return int(hash(string(key))) % h.tableCap
 }
 
 func hash(key string) (hash uint32) {
@@ -72,4 +81,8 @@ func hash(key string) (hash uint32) {
 	hash ^= hash >> 11
 	hash += hash << 15
 	return
+}
+
+func (h *HashMap) resize() {
+
 }
