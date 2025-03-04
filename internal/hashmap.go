@@ -30,8 +30,8 @@ type HashMap struct {
 
 func InitHashMap() *HashMap {
 	return &HashMap{tableSize: 0,
-		tableCap:   TABLE_INIT_CAP,
-		BackingArr: make([]*HashNode, TABLE_INIT_CAP)}
+		tableCap: TABLE_INIT_CAP,
+	}
 }
 
 func (h *HashMap) Put(key int, value int) int {
@@ -83,6 +83,19 @@ func hash(key string) (hash uint32) {
 	return
 }
 
+/*
+if size == cap
+  allocate array with 2*cap
+
+copy from orignal array to new array
+update array pointer
+
+
+*/
+
 func (h *HashMap) resize() {
+	newArr := make([]*HashNode, h.tableSize, 2*h.tableCap)
+	copy(newArr, h.BackingArr[:])
+	h.BackingArr = newArr
 
 }

@@ -1977,13 +1977,146 @@ func groupAnagramsDetail(strs []string) [][]string {
 /*
 Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
 Output: [1,2,2,3,5,6]
+
+1,2    3,4
+
 Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
 The result of the merge is [1,2,2,3,5,6] with the underlined elements coming from nums1.
 */
 func merge(nums1 []int, m int, nums2 []int, n int) {
+	newArr := make([]int, m+n)
+
+	i, j, k := 0, 0, 0
+
+	for i < m && j < n {
+		if nums1[i] <= nums2[j] {
+			newArr[k] = nums1[i]
+			i++
+		} else {
+			newArr[k] = nums2[j]
+			j++
+		}
+		k++
+	}
+
+	for i < m {
+		newArr[k] = nums1[i]
+		i++
+	}
+
+	for j < n {
+		newArr[k] = nums2[j]
+		j++
+	}
 
 }
 
 func threeSum(nums []int) [][]int {
+
+}
+
+/*
+
+if s[j] != alphanumeric
+ j--
+ continue
+
+if s[i] != alphanumeric
+ i++
+ continue
+
+if s[j != s[i]
+ return false
+
+
+ return true
+
+
+*/
+
+func isPalindromestr(s string) bool {
+	i, j := 0, len(s)-1
+
+	for i != j {
+		if !isLetter(s[i]) {
+			i++
+			continue
+		}
+		if !isLetter(s[j]) {
+			j--
+			continue
+		}
+		if s[i] != s[j] {
+			return false
+		}
+
+	}
+
+	return true
+
+}
+
+func isLetter(char byte) bool {
+	if (char < 'a' || char > 'z') && (char < 'A' || char > 'Z') {
+		return false
+	} else {
+		return true
+	}
+}
+
+/*
+input 2,1,1,0,0,1
+      1,1,1,0,0,2
+input 0,0,2,2,1
+
+arr []int
+0,1,2
+3 2 1
+
+
+i, left, right
+
+for i < right
+  if arr[i] == 0
+  swap(i,left)
+  i++, left ++
+
+  if arr[i] == 1
+   i++
+
+
+
+  if arr[i] == 2
+  swap(i,right)
+  right --
+
+
+*/
+
+func DutchNationalFalgSwap(arr []int) []int {
+
+	i, left, right := 0, 0, len(arr)-1
+
+	for i < right {
+		if arr[i] == 0 {
+			temp := arr[i]
+			arr[i] = arr[left]
+			arr[left] = temp
+			i++
+			left++
+
+		} else if arr[i] == 1 {
+			i++
+
+		} else {
+			temp := arr[i]
+			arr[i] = arr[right]
+			arr[right] = temp
+			right--
+
+		}
+
+	}
+	return arr
 
 }
