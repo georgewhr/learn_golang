@@ -140,6 +140,8 @@ func main() {
 	test100 := []int{1, 2, 3, 4}
 	productExceptSelf(test100)
 
+	lengthOfLongestSubstringWithoutRepeatingChar("dvdf")
+
 }
 
 func printList(head *ListNode) {
@@ -188,6 +190,21 @@ func twoSum(nums []int, target int) []int {
 
 	}
 	return nil
+}
+
+func findMin(a int, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+func findMax(a int, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
 }
 
 func add2List(l1 *ListNode, l2 *ListNode) *ListNode {
@@ -2011,9 +2028,45 @@ func merge(nums1 []int, m int, nums2 []int, n int) {
 
 }
 
-func threeSum(nums []int) [][]int {
+/*
+Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] where nums[i] + nums[j] + nums[k] == 0, and the indices i, j and k are all distinct.
 
-}
+The output should not contain any duplicate triplets. You may return the output and the triplets in any order.
+
+Example 1:
+
+Input: nums = [-1,0,1,2,-1,-4]
+
+Output: [[-1,-1,2],[-1,0,1]]
+
+
+sorted
+[-4,-1,-1,0,1,2,2]
+
+[1,2,3] 6
+
+result = left + right
+target_off = target - nums[i]
+
+if result < target_off,  left ++
+if result > target_off, right --
+if result == target_off
+
+Using a set(map)
+
+for i in range(0-len(nums)-1)
+	for j in range(i+1-len(nums)-1)
+       off = target - nums[i] - nums[j]
+	   if off in hashset:
+	       return true
+
+		hashset.add(nums[j])
+
+*/
+
+// func threeSum(nums []int) [][]int {
+
+// }
 
 /*
 
@@ -2118,5 +2171,273 @@ func DutchNationalFalgSwap(arr []int) []int {
 
 	}
 	return arr
+
+}
+
+/*
+Input: nums = [2,20,4,10,3,4,5]
+
+Output: 4, 2,3,4,5
+
+Brutal Force:
+
+result = [][]
+for i in range(0-len-1)
+
+	    temp = 1
+		temparr={nums[i],...}
+		for j in range(1-len-1)
+		   if num[j] == nums[i] + temp:
+		      append(temparr, num[j])
+			  temp ++
+
+		result.append(temparr)
+
+Optimized:
+Pre-load the data, as we only care about the starging sequence
+Like 2sum question
+
+for i n range nums{
+
+	// It's the starting sequence
+	if set[nums[i] - 1 ] != true {
+		seq = 1
+		for i < len(nums){
+			if set[nums[i] + seq] == true {
+				max = Match.max(small, seq+1)
+			}
+			seq++
+			i++
+		}
+
+
+	}
+
+}
+*/
+func longestConsecutiveBF2(nums []int) int {
+	numSet := make(map[int]bool)
+
+	for _, val := range nums {
+		numSet[val] = true
+	}
+
+	for _, val := range nums {
+		if numSet[val-1] != true {
+
+		}
+	}
+	return 1
+}
+
+/*
+Given an array of integers numbers that is sorted in non-decreasing order.
+
+Return the indices (1-indexed) of two numbers, [index1, index2], such that they add up to a given target number target and index1 < index2. Note that index1 and index2 cannot be equal, therefore you may not use the same element twice.
+
+There will always be exactly one valid solution.
+
+Your solution must use
+O
+(
+1
+)
+O(1) additional space.
+
+Example 1:
+
+Input: numbers = [1,2,3,4], target = 3
+
+Output: [1,2]
+Explanation:
+The sum of 1 and 2 is 3. Since we are assuming a 1-indexed array, index1 = 1, index2 = 2. We return [1, 2].
+
+Example 2:
+
+Input: numbers = [2,3,4], target = 6
+Output: [1,3]
+Explanation: The sum of 2 and 4 is 6. Therefore index1 = 1, index2 = 3. We return [1, 3].
+
+Return the indices of the two numbers, index1 and index2, added by one as an integer array [index1, index2] of length 2.
+
+1 0
+2 1
+3 2
+4 3
+
+because it' sorted array, so also use 2 pointers,left and right
+left =0. right = n-1
+
+add = left + right
+if add < target, left++
+if add > target, right ++
+if add == target
+
+	for left < right{
+		add = left + right
+		if add < target, left++
+
+if add > target, right ++
+if add == target
+
+}
+Input: numbers = [2,3,4], target = 5
+Input: numbers = [1,2,3,4], target = 3
+*/
+func twoSumArry(numbers []int, target int) []int {
+	left, right := 0, len(numbers)-1
+
+	for left < right {
+		result := numbers[left] + numbers[right]
+		if result < target {
+			left++
+		} else if result > target {
+			right--
+		} else {
+			return []int{left, right}
+		}
+	}
+	return []int{}
+}
+
+/*
+You are given an integer array heights where heights[i] represents the height of the
+i
+t
+h
+i
+th
+
+	bar.
+
+You may choose any two bars to form a container. Return the maximum amount of water a container can store.
+Input: height = [1,7,2,5,4,7,3,6]
+
+Output: 36
+Example 2:
+
+Input: height = [2,2,2]
+
+Output: 4
+
+BF:
+max = verysamllnumber
+for i -> (0,n-1)
+
+	for j -> (i+1,n-1)
+		x = j -1
+		y = math.min(i,j)
+		max = math.max(max, x*y)
+
+Optimized:
+[1,5,3,4]
+two pinters, left and right
+result = min(nums[left], nums[right]) * (right - left)
+if nums[left] < nums[right] left ++
+if nums[left] >= nums[right] right --
+*/
+func maxWater(heights []int) int {
+
+	left, right := 0, len(heights)-1
+	max := math.MinInt
+
+	for left < right {
+		result := findMin(heights[left], heights[right]) * (right - left)
+		max = findMax(max, result)
+
+		if heights[left] < heights[right] {
+			left++
+		} else {
+			right--
+		}
+
+	}
+	return max
+
+}
+
+/*
+Input: prices = [10,1,5,6,7,1]
+Input: prices = [10,3,5,1,7,12]
+
+Output: 6, nums[1], nums[4]
+i = 0, j =1
+if num[j] - nums[i] < 0, i++,j++
+else j++, max = findMax(max, nums[j]-nums[i])
+
+[2,1,2,1,0,1,2], 2
+*/
+func findMaxProfi(prices []int) int {
+	i, j := 0, 1
+	max := 0
+
+	for j < len(prices) {
+		if prices[j]-prices[i] < 0 {
+			i++
+			continue
+		}
+		max = findMax(max, prices[j]-prices[i])
+		j++
+	}
+
+	return max
+
+}
+
+/*
+Input: s = "zxyzxyz"
+
+Output: 3
+
+"abca"
+3
+
+"aba"
+2
+
+use a hashset
+
+	if !set.contains(s[i]){
+		set.add(s[i])
+		count++
+		max = findMax(max,count)
+	} else {
+
+	clearn hash set
+	set.add(s[i])
+	count = 1
+
+}
+"dvdf"
+"aba"
+*/
+func lengthOfLongestSubstringWithoutRepeatingChar(s string) int {
+
+	if len(s) == 0 {
+		return 0
+	}
+	hashSet := make(map[byte]bool)
+
+	count := 0
+	max := math.MinInt
+	left := 0
+	for i := 0; i < len(s); {
+		// for _, val := range s {
+		if _, ok := hashSet[s[i]]; ok {
+			hashSet = make(map[byte]bool)
+			// hashSet[s[i]] = true
+			count = 1
+			left++
+			i = left
+
+		} else {
+			hashSet[s[i]] = true
+			count++
+			max = findMax(max, count)
+			i++
+
+		}
+	}
+	return max
 
 }

@@ -31,5 +31,72 @@ metadata
 {"chunkId", "timestamp","datasize","crc_checksum"}
 
 
-
 */
+
+/*
+ */
+// const (
+// 	MASTER_SERVICE = iota
+// 	DATA_SERVICE   = iota
+// )
+
+// /*
+
+// /foo/folder/file1.txt -> [chunk1][chunk2][chunk3]
+
+// */
+
+// type GFS struct {
+// 	role        int
+// 	data_sum    int
+// 	chunk_index []string
+// 	chunk_table map[string][]string
+// }
+
+// /*
+// HearBeat message from chunk server to master
+// Storage usage
+// IP address
+// Mac address
+// Role
+// */
+
+// type ChunkServerStats struct {
+// 	ip_addr       string
+// 	mac_address   string
+// 	disk_usage    float32
+// 	network_usage float32
+// }
+
+// /*
+// The method to return the chunkServer
+// The method is master's job
+// Input: ChunkID
+// Output: Chunk Server IP address
+
+// e.g, /foo/george/file1, 1x877d
+
+// */
+
+// func (this *GFS) GetDataServer(fileName string, chunkId uint64) string {
+// 	/*
+// 		the method will use some algorithm to find out the most
+// 		avaiable chunk server, based on a few factors, such as
+// 		disk usage, network usage, can use priority q
+// 	*/
+// 	this.chunk_table[fileName][chunkId] = "server1"
+// 	return "server"
+// }
+
+// /*
+// Read a file by using namespace, e.g, /foot/file1
+// to get the chunk table, and then get all the chunks
+// */
+// func (this *GFS) GetFile()
+
+// /*
+// Read a file by using namespace, e.g, /foot/file1
+// to get the chunk table, and then get all the chunks
+// */
+
+// func (this *GFS) PutFile()
