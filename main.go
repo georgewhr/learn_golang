@@ -141,6 +141,10 @@ func main() {
 	productExceptSelf(test100)
 
 	lengthOfLongestSubstringWithoutRepeatingChar("dvdf")
+	longestRepeatingChar("AABABBA", 1)
+
+	ss := checkInclusion("trfhcbogglim", "amwfpqwfwkarvhfcisywzaahtbdbuicxmjseeoudwfcdxetbmacayfikolbdxkocezhalfhxabwvuddcyazwiqiwefgolzvrpdxcuskpsmwhslpeygjrvvajajafppcwkqhxwkigemfullbqkvuqwfnqnhxiltyfcpfdyumfwyelmtzbdccmbvxedgfimmsqwxmopvxmuonuzyzlhpeunailpydcqybghdwvqxrpautsvrhfxprdqlgzownvincoxjnjwrqrdgpegtgvlifbbautkfqbhqiftbmxadvorqjnqlsceuctazxgofmchypspqvwyzoeejqfkvvwftvagajafmafvytslubpzalnahjknarjswkxmzzlmlokrifiopjcamvynmmuegnzvveetssuucqclbzxgjwbsflyelpdsvzicdnlenuxggcsrckfdixsqcjrzsbztgvxbpktlbdqrcqoatgxqhwehqiuqjnldursyzplwlcdvwrmlknviqtexwgqovwbcdugdblakufxcapvkvhraacetowtcypfxlvwmwdafesfgqezspbvqzxicblrdsmmdzunpcmzvysgbnspuldkppwlrsrnnewwjquhzrodmsbgbycvrzmtnskyuqqoqkxyakojewbbtntbdjuncpgbwgrtvewyscyujnqtpuaulrnjqmdujxydwzfyqfnxmjqogibxqeuqdxsdjjpootpzmhcvoeyvdspktyjzadkfwcdulsuktottgpvptjfydvpdxoznzhbkmitaiywqklwrktmzsyndnqmtapaaadzkynfxiwqxtekcbkmcwhwwdylvoxosxcexeceavpfptdlkyinhdobrnxfdbtuomjojmzeytlntkundrydqmkiayounnbhfxrlriuatzumgfcyniicwhtsaffhnxamwjtgbxvewtgovvrjvblrlvrghyoiicgvyorzjgecmxqeiwpuubfrnkmpynwywqczqdpeinebgfyrhouvifthoaariadurpbrexbfnuwgkbmgowjuaysnmidptzetckscxvxttdogpywxdvaktmkispgyghfazxyxslyjhqorndzpjepmwiuisfhvacnpkthbfrasndrfkfuhpetlnfugmqhqpvtvlwumhxduxxmugstcbksvqholothhftzungtxdysudnixkzekpdlgddnvyfuitcedxvjfsjxhbcrenufafxzdrumeavumdbvvgpodgtsjzznxkpbfltchmogigordwcpcanomjznfmsxpzqgxigjpybooxsgyiuxskowkdpypnzpgebowqefomcpmfilixgzvoffvmcypgyrwhwaelfpclzaoldlaimtnszckziyqewrtewpfyhphxruytifwtodznvxmxwoibqvtmynpqshnmiymrayaenoiknjqzwoltqhaganjdwzkncathqrgcigaguimqgznupmsikurxjltfydqiozmddxydgtsvwoloqtlqhryfqmcsfetvtjkauyjgillobotqfhzsyjtcjsiqxhwoaucluagbltdwroayydlwzytpqlsxkbrgcavvaqvlggewskeflsejklqexjvcudzaanxrgnkwygokcuxkvypsh")
+	fmt.Println(ss)
 
 }
 
@@ -2409,35 +2413,244 @@ use a hashset
 
 }
 "dvdf"
-"aba"
+"ababc"
+slow, fast = 0, 1
+
+	for fast < n {
+		if nums[fast] == nums[slow]{
+			slow++
+			fast = slow + 1
+		}
+		max = findMax(max, fast - slow+1)
+		fast ++
+	}
+
+	abcabcbb
+	ababc
+	dvdf
+
+	s = 0, f = 1, max = 1
+	s = 1, f =2,
+
+pwwkew
+
+		func lengthOfLongestSubstring(s string) int {
+	    curBest := 0
+	    set := map[byte]bool{}
+	    l, r := 0, 0
+	    for r < len(s) {
+	        if _, ok := set[s[r]]; !ok { // can grow window
+	            set[s[r]] = true
+	            r++
+	            curBest = max(curBest, r - l)
+	        }else{
+	            delete(set, s[l])
+	            l++
+	        }
+	    }
+	    return curBest
+	}
 */
 func lengthOfLongestSubstringWithoutRepeatingChar(s string) int {
 
 	if len(s) == 0 {
 		return 0
 	}
-	hashSet := make(map[byte]bool)
-
-	count := 0
-	max := math.MinInt
-	left := 0
-	for i := 0; i < len(s); {
-		// for _, val := range s {
-		if _, ok := hashSet[s[i]]; ok {
-			hashSet = make(map[byte]bool)
-			// hashSet[s[i]] = true
-			count = 1
-			left++
-			i = left
+	set := make(map[byte]bool)
+	slow, fast, max := 0, 0, 1
+	for fast < len(s) {
+		if _, ok := set[s[fast]]; ok {
+			delete(set, s[fast])
+			slow++
+			// fast = slow
+			// set = make(map[byte]bool)
 
 		} else {
-			hashSet[s[i]] = true
-			count++
-			max = findMax(max, count)
-			i++
+			set[s[fast]] = true
+			fast++
+			max = findMax(max, fast-slow)
 
 		}
 	}
 	return max
+}
+
+/*
+
+You are given a string s consisting of only uppercase english characters and an integer k. You can choose up to k characters of the string and replace them with any other uppercase English character.
+
+After performing at most k replacements, return the length of the longest substring which contains only one distinct character.
+
+Example 1:
+
+Input: s = "XYYX", k = 2
+
+Output: 4
+
+left=0, right=0
+
+xxyyx
+
+for fast < n{
+	temp = k
+	if s[left] == s[right]{
+		max = findMax(max, right-left+1)
+		right++
+
+	} else {
+		if temp > 0{
+			max = findMax(max, right-left+1)
+			right ++
+			temp--
+
+		} else {
+			left ++
+			right = slow
+		}
+
+	}
+}
+ABAB, 2
+AABABBA,1
+
+AAAB
+
+
+ABBB, 2
+*/
+
+func longestRepeatingChar(s string, k int) int {
+	left, right := 0, 0
+	max := 1
+
+	temp := k
+	for right < len(s) {
+
+		if s[left] == s[right] {
+			max = findMax(max, right-left+1)
+			right++
+		} else if temp > 0 && s[left] != s[right] {
+			// change left first
+			if temp == k {
+
+			}
+			max = findMax(max, right-left+1)
+			temp--
+			right++
+
+		} else {
+			left++
+			right = left
+			temp = k
+		}
+	}
+	return max
+
+}
+
+/*
+You are given two strings s1 and s2.
+
+Return true if s2 contains a permutation of s1, or false otherwise. That means if a permutation of s1 exists as a substring of s2, then return true.
+
+Both strings only contain lowercase letters.
+
+Example 1:
+
+Input: s1 = "abc", s2 = "lecabee", "eaecabee"
+
+BF:
+sort both s1 and s2
+abc, eeeabcppp
+
+	for i -> range len(s2) -1{
+		for j in range len(s1){
+			if s2[i] != s1[j]{
+				break
+			} else {
+				k++
+			}
+		}
+
+}
+
+Input: s1 = "abc", s2 = "lecabee", "eaecabee"
+
+make a windows size equal to s1, 3
+left-0, right = 3-1 = 2
+
+	for right < len(s1){
+		for i = left, i < =right{
+			temp := 1
+			if !map.contains(s2[]) {
+				//move window,
+				left ++
+				right++
+			} else {
+
+				temp ++
+			}
+
+			if temp == len(s1) return true
+		}
+
+}
+Input: s1 = "abc", s2 = "lecabee", "eaecabee"
+abc, aaaaaa
+hello,ooolleoooleh
+ab, cab
+*/
+
+func checkInclusion(s1 string, s2 string) bool {
+	left, right := 0, len(s1)-1
+
+	set := make(map[byte]int)
+
+	for _, val := range s1 {
+		set[byte(val)]++
+	}
+	for right <= len(s2)-1 {
+		temp := 0
+		copiedMap := make(map[byte]int)
+		for key, value := range set {
+			copiedMap[key] = value
+		}
+		for i := left; i <= right; i++ {
+			if _, ok := copiedMap[byte(s2[i])]; ok {
+				temp++
+				copiedMap[byte(s2[i])]--
+				if copiedMap[byte(s2[i])] == 0 {
+					delete(copiedMap, s2[i])
+				}
+			} else {
+				break
+			}
+		}
+		if temp == len(s1) && len(copiedMap) == 0 {
+			return true
+		}
+		left++
+		right++
+	}
+
+	return false
+
+}
+
+/*
+
+Given two strings s and t, return the shortest substring of s such that every character in t, including duplicates, is present in the substring. If such a substring does not exist, return an empty string "".
+
+You may assume that the correct output is always unique.
+
+Example 1:
+
+Input: s = "OUZODYXAZV", t = "XYZ"
+
+Output: "YXAZ"
+
+*/
+
+func minWindow(string s, string t) string {
 
 }
