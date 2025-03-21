@@ -288,13 +288,34 @@ func lengthOfLongestSubstring(s string) int {
 	return max
 }
 
-// 1,2,3
-// 3,4,5
-// 1,2,3,3,4,5, even,middleIndex = (arr[len / 2 - 1] + arr[len / 2 ]) /2
+/*
+1,2,3
+3,4,5
+1,2,3,3,4,5, even,middleIndex = (arr[len / 2 - 1] + arr[len / 2 ]) /2
 
-// 1,2,3
-// 3,4,5,6
-// 1,2,3,3,4,5,6, odd, arr[len / 2]
+1,2,3
+3,4,5,6
+
+1 2 3
+1 2 3
+
+1 2 3 4
+1
+
+4 5 6
+1 2 3
+nums1, nums2, the median index is always (len(m1) + len(m2)) / 2 if odd,
+((len(m1) + len(m2)) / 2 + (len(m1) + len(m2)) / 2 -1) / 2 if even.
+so we can set a pointer and the pointer is always less than (len(nums1) + len(nums1)) / 2
+and it will for sure stops at (len(nums1) + len(nums1)) / 2
+
+p1, p2 = 0,0, from nums1 and nums2
+if nums[]
+for i in range (len(nums1) + len(nums1)) / 2
+
+
+
+*/
 
 func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 
@@ -600,6 +621,48 @@ func longestCommonPrefix(strs []string) string {
 input, an array of integers
 output, return all the possible triplets array that sum of them is equal to zero
 example,
+Input: nums = [-1,0,1,2,-1,-4]
+
+Output: [[-1,-1,2],[-1,0,1]]
+
+
+for i : range len(nums) {
+	j = i + 1
+	y = target - nums[i]
+	for j < len(nums){
+		check2Sum(nums[j:])
+
+	}
+}
+
+func check2Sum(nums []int) []int {
+
+}
+
+option 2
+1. You can sort the the array and use 2 pointers solutions
+Input: nums = [-4, -1,-1,0,1,2]
+for i := range nums {
+	p1, p2:= 0, len(nums) - 1
+	off = target - nums[i]
+
+	for p1 < p2 {
+		if nums[p1] + nums[p2] + off == target {
+			return
+		} else if nums[p1] + nums[p2] > off {
+			p2 --
+		} else {
+			p1 ++
+		}
+	}
+
+}
+
+
+
+
+
+
 */
 
 // func threeSum(number []int) [][]int {
@@ -1950,7 +2013,21 @@ else
 
 Output: [0,1]
 */
-func twoSum1(arr []int, target int) {
+func twoSum1(arr []int, target int) []int {
+
+	myMap := make(map[int]int)
+
+	for index, val := range arr {
+		offset := target - val
+
+		if val, ok := myMap[offset]; ok {
+			return []int{val, index}
+		} else {
+			myMap[val] = index
+		}
+
+	}
+	return nil
 
 }
 
@@ -2649,8 +2726,349 @@ Input: s = "OUZODYXAZV", t = "XYZ"
 
 Output: "YXAZ"
 
+
+BF:
+for i =0, i < n-1 i++ {
+	for j = i, j< n-1, j++ {
+		max = findMax(max, checkIftInS(s[i:j], t))
+	}
+}
+// check if char in s2 are all in s1
+func checkIftInS(s1, s2){
+	creaet map, s2[2]->freqency
+	for range s1{
+		if map[s1[i]]{
+			map[s1[i] --
+		}
+		if map[s1[i]] == 0 {
+			delete
+		}
+	}
+	if map is emoty
+	return len(s1)
+	else{
+		return 0
+	}
+}
+
+sliding window
+
+tMap
+{
+	X:1
+	Y:1
+	Z:1
+}
+
+
+
+
+
+Input: s = "OUZODYXAZV", t = "XYZ"
+
+Output: "YXAZ"
+sMap
+left = 0, right  = 0
+for right < n-1{
+	if t[right] == ok {
+		sMap[val]++
+		if s[:i] has characert of tMap{
+			get Max len
+			while(left < right){
+				if sMap[left] is ok{
+					sMap[left]--
+					break
+				}
+				left ++
+			}
+		}
+	}
+
+
+}
+
+
 */
 
-func minWindow(string s, string t) string {
+// func minWindow(s string, t string) string {
+
+// }
+
+/************
+Tree
+pre-order, in-oreder, post-oreder
+Traverse using itterations.
+1
+/\
+2 3
+
+pre-order, 1,2,3, root, left, right
+in-order, 2,1,3, left, then root, then right
+post-oder, 2,3,1, left, then right, then root
+
+Pre order:
+Using itterations basically needs a DS to store some state.
+stack.push(root)
+while(stack is not empty) {
+	r = stack.pop()
+	print(r)
+	stack.push(r.right)
+	stack.push(r.left)
+}
+
+In-order:
+traverse left,
+visit node
+traverse right
+
+currentnode = root
+stack.push(currentNode)
+currentNode = currentNode.left
+stack.push(currentNode)
+currentNode = currentNode.left
+
+currentNode == nill
+newNode = stack.pop()
+print(newNode)
+
+
+
+
+
+
+
+
+
+
+
+**************/
+
+/*
+You are given the head of a singly linked-list.
+
+The positions of a linked list of length = 7 for example, can intially be represented as:
+
+[0, 1, 2, 3, 4, 5, 6]
+0 6 1 5 2 4 3
+
+0123
+0312
+1. find the middle pointer,
+2. reverse 2nd half of the list
+3. merge first half and 2nd half of list
+
+1 2 3 4
+5 6 7 8
+l1_temp 2
+
+l1_temp = l1.next
+l1.next = l2
+l1 = l1_temp
+l2_temp = l2.next
+l2.next = l1
+l2 = l2_temp
+*/
+func reOrderList(head *ListNode) {
+
+	slow, fast := head, head.Next
+
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+
+}
+
+func mergeTwoList(l1 *ListNode, l2 *ListNode) {
+
+	for l1 != nil && l2 != nil {
+		l1_temp := l1.Next
+		l1.Next = l2
+		l1 = l1_temp
+		l2_temp := l2.Next
+		l2.Next = l1_temp
+		l2 = l2_temp
+	}
+
+}
+
+func reverseLinkedList(head *ListNode) {
+
+	cur := head
+	pre := new(ListNode)
+
+	for cur != nil {
+		temp := cur.Next
+		cur.Next = pre
+		pre = cur
+		cur = temp
+	}
+
+}
+
+/*
+
+Input: nums =
+[3,4,5,6,1,2]
+[5,6,1,2,3,4]
+[6 1 2 3 4 5]
+[4 5 6 1 2 3]
+[3 4 5 6 1 2]
+[5 6 1 2 3 4]
+[1,2,3,4,5,6]
+1 2 3 4 5 6
+6 1 2 3 4 5
+2 3 4 5 6 1
+Output: 1
+
+for left < right{
+
+}
+if right > left
+  getLeft
+
+if mid < right , it's on the left part of the array
+
+if mid > left, it's on the right part of array
+
+
+[3,4,5,6,1,2]
+[5,6,1,2,3,4]
+[6 1 2 3 4 5]
+[1,2,3,4,5,6]
+
+0 1 2 3
+[4 1 2 3]
+1 2 3 0
+
+4 1 2, r = 2, left = 0, mid =1
+
+mid = 1, left = 0, right =3,
+left = 0 , right = 0, mid = 0
+
+*/
+
+func findMinRotaedSortArray(nums []int) int {
+	left, right := 0, len(nums)-1
+
+	for left < right {
+		mid := left + (right-left)/2
+		if nums[right] > nums[left] {
+			return nums[left]
+		} else if nums[mid] < nums[right] {
+			right = mid
+		} else {
+			left = mid + 1
+		}
+	}
+	return nums[left]
+
+}
+
+/*
+
+
+1 2 3 4
+1 2 3 4 5
+1 2 3 4 5 6
+
+binarySerachHelper(arr, left, right, target) {
+
+	mid = left + (right-left) / 2
+	if(arr[mid] == target) return mid
+
+	if target >= arr[mid] {
+		return binarySerachHelper(arr, mid+1, right)
+
+	}
+
+	if target < arr[mid]{
+		return binarySerachHelper(arr, left, mid1)
+	}
+	return nil
+
+
+}
+Input: nums = [3,4,5,6,1,2]
+
+left = 0, right = 5,  mid = 2 -> left = 3, mid = 4
+
+
+Input: nums = [5,6,1,2,3,4]
+searchInRotaedSortArray(arr []int, target int) {
+
+
+	mid = right / 2
+	for left < right {
+
+		if nums[left] < nums[mid]{
+			if target <= mid{ // normal binary serach
+				binarySerachHelper(arr, left, mid-1)
+		}  else {
+				left = mid -1 1
+			}
+		}else  {
+			if  target >= mid) // normal binary serach
+			{
+				binarySerachHelper(arr, mid + 1, right)
+			} else {
+				right = mid + 1
+
+			}
+		}
+
+
+	}
+
+}
+
+[5,6,1,2,3,4]
+[2,3,4,5,6,1]
+
+*/
+
+func searchInRotaedSortArray(arr []int, target int) int {
+
+	left, right := 0, len(arr)
+
+	for left < right {
+		mid := left + (right-left)/2
+
+		if arr[mid] == target {
+			return mid
+		}
+
+		if arr[left] <= arr[mid] {
+
+			if target >= arr[left] && target < arr[mid] {
+				right = mid - 1
+			} else {
+				left = mid + 1
+			}
+
+		} else {
+			if target >= arr[mid] && target < arr[right] {
+				left = mid + 1
+			} else {
+				right = mid - 1
+			}
+		}
+
+	}
+	return -1
+
+}
+
+func invertBinaryTree(node *TreeNode) {
+	if node == nil {
+		return
+	}
+
+	temp := node.Left.Val
+	node.Left.Val = node.Right.Val
+	node.Right.Val = temp
+
+	invertBinaryTree(node.Left)
+	invertBinaryTree(node.Right)
 
 }
