@@ -1746,29 +1746,6 @@ func lowestCommonAncestorp(root, p, q *TreeNode) *TreeNode {
 
 }
 
-func isSameTree(p *TreeNode, q *TreeNode) bool {
-	if p == nil && q == nil {
-		return true
-	}
-
-	if p == nil {
-		return false
-	}
-
-	if q == nil {
-		return false
-	}
-
-	if q.Val != q.Val {
-		return false
-	}
-
-	left := isSameTree(p.Left, q.Left)
-	right := isSameTree(p.Right, q.Right)
-	return left && right
-
-}
-
 /*
 if p == root || q == root
  return  root
@@ -3070,5 +3047,251 @@ func invertBinaryTree(node *TreeNode) {
 
 	invertBinaryTree(node.Left)
 	invertBinaryTree(node.Right)
+
+}
+
+func maxDepth2(node *TreeNode) int {
+	return maxDepth2Helper(node, 0)
+}
+
+func maxDepth2Helper(node *TreeNode, max int) int {
+	if node == nil {
+		return 0
+	}
+	leftNode := maxDepth2(node.Left) + 1
+	rightNode := maxDepth2(node.Right) + 1
+
+	return findMax(leftNode, rightNode)
+
+}
+
+/*
+Find the max sum for any path.
+Find edge case
+find out which depth is big
+if node == nil {
+	return 0
+}
+left = maxPathSum(node.left)
+righ = maxPathSum(node.right)
+
+if left =< 0 {
+	left = 0
+}
+
+
+leftMaxDepth = left + node.Val
+rightMaxDepth = right + node.Val
+return findMax(leftMaxDepth,rightMaxDepth)
+
+
+
+
+*/
+
+func maxPathSum(node *TreeNode) int {
+	return -1
+}
+
+/*
+Invert binary tree.
+The goal is to invert entire node inlcuding value
+
+1
+2 3
+
+    1
+ 3    2
+4 5   6 7
+
+1. Is this a Top-Down or Bottom up question.
+It's top down, so use pre-order traverse.
+define base case, node is nil
+
+if node == nill; return nil
+
+if node.left && node.right
+temp:=node.left
+node.left = node.right
+node.right = temp
+
+
+
+*/
+
+func invertBinaryTreeBFS(node *TreeNode) *TreeNode {
+
+	if node == nil {
+		return nil
+	}
+
+	myQueue := internal.InitQueue(10)
+	myQueue.Add(node)
+
+	for myQueue.GetSize() != 0 {
+		node := myQueue.GetTail().(TreeNode)
+
+		temp := node.Left
+		node.Left = node.Right
+		node.Right = temp
+
+		if node.Left != nil {
+			myQueue.Add(node.Left)
+		}
+
+		if node.Right != nil {
+			myQueue.Add(node.Right)
+		}
+
+	}
+
+	return node
+
+}
+
+/*
+use bottom-up appraoch with post order
+
+1
+
+2 3
+
+dfs(1)
+
+ dfs(2), return 0
+ dfs(3, return 0)
+
+
+
+*/
+
+func diameterOfBinaryTree(node *TreeNode) int {
+
+	res := 0
+
+	var dfsHelper func(*TreeNode) int
+	dfsHelper = func(node *TreeNode) int {
+
+		if node == nil {
+			return 0
+		}
+
+		left := dfsHelper(node.Left)
+		right := dfsHelper(node.Right)
+
+		res = findMax(res, left+right)
+
+		return 1 + findMax(left, right)
+
+	}
+	dfsHelper(node)
+
+	return res
+
+}
+
+/*
+Check if balance tree,
+
+(left-right) < 2
+
+base case, if node is nil, return 0
+find out the left depthest path and right depthest path
+
+
+
+*/
+
+func isBalanced(node *TreeNode) bool {
+
+	res := 0
+	var dfsHelper func(*TreeNode) int
+	dfsHelper = func(node *TreeNode) int {
+
+		if node == nil {
+			return 0
+		}
+
+		left := dfsHelper(node.Left)
+		right := dfsHelper(node.Right)
+		res = findMax(res, getAbs(left, right))
+		return 1 + findMax(left, right)
+
+	}
+	dfsHelper(node)
+
+	if res > 1 {
+		return false
+	} else {
+		return true
+	}
+
+}
+
+func getAbs(a int, b int) int {
+	x := a - b
+
+	if x < 0 {
+		return -x
+	} else {
+		return x
+	}
+}
+
+/*
+Use post order
+
+	if node1 == nil && node2 == nil{
+		return true
+	} else if node1 == nill {
+		return false
+	} else if node2 ==nill{
+		return false
+	} esle node1.val != node2.val{
+		return false
+	}
+	leftB = isSameTree2(node1.left, node2.left)
+	rightB = isSameTree2(node1.right, node2.right)
+*/
+func isSameTree2PostOrder(p *TreeNode, q *TreeNode) bool {
+
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil || q == nil {
+		return false
+	}
+
+	leftB := isSameTree2PostOrder(p.Left, q.Left)
+	rightB := isSameTree2PostOrder(p.Right, q.Right)
+
+	var res bool
+	if p.Val == q.Val {
+		res = true
+	} else {
+		res = false
+	}
+
+	return res && leftB && rightB
+
+}
+
+func isSameTree2PreOrder(p *TreeNode, q *TreeNode) bool {
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil || q == nil {
+		return false
+	}
+	if p.Val != q.Val {
+		return false
+	}
+
+	left := isSameTree2PreOrder(p.Left, q.Left)
+	right := isSameTree2PreOrder(p.Right, q.Right)
+
+	return left && right
 
 }
