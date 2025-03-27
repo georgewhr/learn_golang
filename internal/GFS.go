@@ -41,8 +41,11 @@ General Appraoch
 2. Master node will parition the file to multiple sub-files with a fixed size.
 3. Say a large file with 100M, it will be splited to 2 chuncks, each of them has a UUID
  "/foo/file1.txt" : {
-	"uuid1": "location1",
-	"uuid2": "location2"
+	"chunkid1": {
+		"p":"server1",
+		"r":["server2","server3"]
+	}
+	...
 }
 4. After above steps, client will direcftly talk to the data nodes to upload the data.
 

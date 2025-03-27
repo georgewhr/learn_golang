@@ -1703,19 +1703,25 @@ func sumNumbers(root *TreeNode) int {
 
 }
 
-func sumNumbersHelper(root *TreeNode, sum int) int {
+/*
+1
+2 3
 
-	if root == nil {
-		return 0
-	}
+1
+
+	2
+*/
+func sumNumbersHelper(root *TreeNode, sum int) int {
 
 	if root.Left == nil && root.Right == nil {
 		return sum*10 + root.Val
 	}
 
 	sum = sum*10 + root.Val
+	left := sumNumbersHelper(root.Left, sum)
+	right := sumNumbersHelper(root.Right, sum)
 
-	return sumNumbersHelper(root.Left, sum) + sumNumbersHelper(root.Right, sum)
+	return left + right
 
 }
 
@@ -3293,5 +3299,287 @@ func isSameTree2PreOrder(p *TreeNode, q *TreeNode) bool {
 	right := isSameTree2PreOrder(p.Right, q.Right)
 
 	return left && right
+
+}
+
+/*
+1
+2 3
+12 + 13 = 25
+1 2
+sum = 0
+sum = sum*10 + node.val
+Use top down appraoch, pre-order
+root, left, right
+
+
+*/
+
+func sumRootLeaf(root *TreeNode) int {
+
+	var dfs func(*TreeNode, int) int
+
+	dfs = func(node *TreeNode, sum int) int {
+
+		if node == nil {
+			return 0
+		}
+		if node.Left == nil && node.Right == nil {
+			return sum*10 + node.Val
+		}
+		sum = sum*10 + node.Val
+		left := dfs(node.Left, sum)
+		right := dfs(node.Right, sum)
+		return left + right
+
+	}
+
+	return dfs(root, 0)
+
+}
+
+/*
+	 1
+	2   3
+
+4 5
+
+	2
+
+4 5
+
+appraoch,
+find if node in root same as root of subroot,
+if yes, then just check if they are same tree.
+*/
+func subTreeOfAnotherTree(root *TreeNode, subRoot *TreeNode) bool {
+
+	if root == nil {
+		return false
+	}
+
+	if isSameTree2PreOrder(root, subRoot) {
+		return true
+	}
+
+	l := subTreeOfAnotherTree(root.Left, subRoot)
+	r := subTreeOfAnotherTree(root.Right, subRoot)
+
+	return l || r
+
+}
+
+/*
+     5
+  3   8
+ 1 4  7 9
+
+p = 4, q =3 , ans = 5, it's a BST
+p and q are there
+top=down pre order appraoch
+1. LCA-root =< p or q
+2. LCA-root >= p or q
+3. p<LCA-root<q
+
+
+if root == nil {
+	return nil
+}
+
+if p < root.val && q > root.val {
+	//root is the LCA
+	return root
+} else if p < root.val && q < root.val{
+	root = dfs(root.left, p, q)
+} else if p > root.val && q > root.val{
+	root =eturn dfs(root.right, p, q)
+}
+
+return root
+
+*/
+
+func lcaBST(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if p.Val < root.Val && q.Val > root.Val {
+		return root
+	} else if p.Val < root.Val && q.Val < root.Val {
+		return lcaBST(root.Left, p, q)
+	} else if p.Val > root.Val && q.Val > root.Val {
+		return lcaBST(root.Right, p, q)
+	}
+
+	return root
+
+}
+
+/*
+pre-oreder, top down
+
+
+8
+
+1 2
+4
+
+if root == p || q == root {
+	return root
+}
+
+l = dfs(root.left, p, q)
+right = dfs(root.left, p, q)
+return root
+
+
+*/
+
+func lcaNonBST(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if root == p || root == q {
+		return root
+	}
+	l := lcaNonBST(root.Left, p, q)
+	r := lcaNonBST(root.Right, p, q)
+
+	if l != nil && r != nil {
+		return root
+	} else if l != nil {
+		return l
+	} else {
+		return r
+	}
+
+}
+
+/*
+ 	 1
+	2 3
+  4 5  6 7
+level order
+[[1]
+[2,3]
+[4,5,6,7]]
+
+Init a 2-D array to store the final ans
+init a queue
+put root in queue
+
+for queue is not empty{
+
+	init a list
+	for i in range queue size {
+		item = queue.poll()
+		list.add(item)
+		if item.left{
+			queue.put(tem.left)
+		}
+
+		if item.right{
+			queue.put(tem.right)
+		}
+	}
+	asn = append(ans, list)
+
+}
+
+
+
+*/
+
+func btLevelOrderTravese(root *TreeNode) [][]int {
+	if root == nil {
+		return nil
+	}
+
+	var ans [][]int
+	var queue []*TreeNode
+	queue = append(queue, root)
+
+	for len(queue) != 0 {
+		var temp []int
+		for i := range len(queue) {
+			item := queue[0]
+			queue = queue[1:]
+			temp = append(temp, item.Val)
+			if item.Left != nil {
+				queue = append(queue, item.Left)
+			}
+
+			if item.Right != nil {
+				queue = append(queue, item.Right)
+			}
+
+		}
+		ans = append(ans, temp)
+	}
+
+	return ans
+
+}
+
+// BFS
+func rightViewTree(root *TreeNode) []int {
+	if root == nil {
+		return nil
+	}
+
+	var ans []int
+	var queue []*TreeNode
+	queue = append(queue, root)
+
+	for len(queue) != 0 {
+		size := len(queue)
+		for i := 0; i < size; i++ {
+			item := queue[0]
+			queue = queue[1:]
+			if i == size-1 {
+				ans = append(ans, item.Val)
+			}
+			if item.Left != nil {
+				queue = append(queue, item.Left)
+			}
+
+			if item.Right != nil {
+				queue = append(queue, item.Right)
+			}
+
+		}
+	}
+
+	return ans
+}
+
+/*
+Use global size and current depth to determine the action
+*/
+func rightViewTreeDFS(root *TreeNode) []int {
+	var ans []int
+
+	var dfsFunc func(root *TreeNode, depth int)
+
+	dfsFunc = func(root *TreeNode, depth int) {
+		if root == nil {
+			return
+		}
+
+		if depth == len(ans) {
+			ans = append(ans, root.Val)
+		}
+
+		dfsFunc(root.Right, depth+1)
+		dfsFunc(root.Left, depth+1)
+	}
+
+	dfsFunc(root, 0)
+
+	return ans
 
 }
