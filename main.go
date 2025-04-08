@@ -63,11 +63,15 @@ func main() {
 	// }
 
 	myList1 := List{}
-	myList1.Insert(1)
-	myList1.Insert(2)
+	myList1.Insert(4)
 	myList1.Insert(3)
 	myList1.Insert(4)
-	myList1.Insert(5)
+	myList1.Insert(1)
+	// myList1.Insert(4)
+	// myList1.Insert(5)
+
+	result := print_list_recursive(myList1.Head, -1)
+	fmt.Printf("result is %v", result)
 
 	// myList2 := List{}
 	// myList2.Insert(6)
@@ -145,6 +149,14 @@ func main() {
 
 	ss := checkInclusion("trfhcbogglim", "amwfpqwfwkarvhfcisywzaahtbdbuicxmjseeoudwfcdxetbmacayfikolbdxkocezhalfhxabwvuddcyazwiqiwefgolzvrpdxcuskpsmwhslpeygjrvvajajafppcwkqhxwkigemfullbqkvuqwfnqnhxiltyfcpfdyumfwyelmtzbdccmbvxedgfimmsqwxmopvxmuonuzyzlhpeunailpydcqybghdwvqxrpautsvrhfxprdqlgzownvincoxjnjwrqrdgpegtgvlifbbautkfqbhqiftbmxadvorqjnqlsceuctazxgofmchypspqvwyzoeejqfkvvwftvagajafmafvytslubpzalnahjknarjswkxmzzlmlokrifiopjcamvynmmuegnzvveetssuucqclbzxgjwbsflyelpdsvzicdnlenuxggcsrckfdixsqcjrzsbztgvxbpktlbdqrcqoatgxqhwehqiuqjnldursyzplwlcdvwrmlknviqtexwgqovwbcdugdblakufxcapvkvhraacetowtcypfxlvwmwdafesfgqezspbvqzxicblrdsmmdzunpcmzvysgbnspuldkppwlrsrnnewwjquhzrodmsbgbycvrzmtnskyuqqoqkxyakojewbbtntbdjuncpgbwgrtvewyscyujnqtpuaulrnjqmdujxydwzfyqfnxmjqogibxqeuqdxsdjjpootpzmhcvoeyvdspktyjzadkfwcdulsuktottgpvptjfydvpdxoznzhbkmitaiywqklwrktmzsyndnqmtapaaadzkynfxiwqxtekcbkmcwhwwdylvoxosxcexeceavpfptdlkyinhdobrnxfdbtuomjojmzeytlntkundrydqmkiayounnbhfxrlriuatzumgfcyniicwhtsaffhnxamwjtgbxvewtgovvrjvblrlvrghyoiicgvyorzjgecmxqeiwpuubfrnkmpynwywqczqdpeinebgfyrhouvifthoaariadurpbrexbfnuwgkbmgowjuaysnmidptzetckscxvxttdogpywxdvaktmkispgyghfazxyxslyjhqorndzpjepmwiuisfhvacnpkthbfrasndrfkfuhpetlnfugmqhqpvtvlwumhxduxxmugstcbksvqholothhftzungtxdysudnixkzekpdlgddnvyfuitcedxvjfsjxhbcrenufafxzdrumeavumdbvvgpodgtsjzznxkpbfltchmogigordwcpcanomjznfmsxpzqgxigjpybooxsgyiuxskowkdpypnzpgebowqefomcpmfilixgzvoffvmcypgyrwhwaelfpclzaoldlaimtnszckziyqewrtewpfyhphxruytifwtodznvxmxwoibqvtmynpqshnmiymrayaenoiknjqzwoltqhaganjdwzkncathqrgcigaguimqgznupmsikurxjltfydqiozmddxydgtsvwoloqtlqhryfqmcsfetvtjkauyjgillobotqfhzsyjtcjsiqxhwoaucluagbltdwroayydlwzytpqlsxkbrgcavvaqvlggewskeflsejklqexjvcudzaanxrgnkwygokcuxkvypsh")
 	fmt.Println(ss)
+
+	var rootNode = &TreeNode{Val: 2}
+	var leftNode = &TreeNode{Val: 1}
+	var rightNode = &TreeNode{Val: 3}
+	rootNode.Left = leftNode
+	rootNode.Right = rightNode
+	// isValidBST2(rootNode)
+	kSmallestBST(rootNode, 1)
 
 }
 
@@ -3234,6 +3246,35 @@ func isBalanced(node *TreeNode) bool {
 
 }
 
+func isBalanced2(root *TreeNode) bool {
+
+	res := 0
+	var dfsHelper func(root *TreeNode) int
+	dfsHelper = func(node *TreeNode) int {
+
+		if root == nil {
+			return 0
+		}
+
+		left := dfsHelper(node.Left) + 1
+		right := dfsHelper(node.Right) + 1
+
+		res = findMax(res, getAbs(left, right))
+
+		return findMax(left, right)
+
+	}
+
+	dfsHelper(root)
+
+	if res > 1 {
+		return false
+	} else {
+		return true
+	}
+
+}
+
 func getAbs(a int, b int) int {
 	x := a - b
 
@@ -3516,6 +3557,7 @@ func btLevelOrderTravese(root *TreeNode) [][]int {
 			if item.Right != nil {
 				queue = append(queue, item.Right)
 			}
+			i++
 
 		}
 		ans = append(ans, temp)
@@ -3583,3 +3625,361 @@ func rightViewTreeDFS(root *TreeNode) []int {
 	return ans
 
 }
+
+/*
+  2
+
+ 1  1
+3     5
+4
+2
+11
+3 1 5
+
+
+2 1 3 4 10 2 1
+use DFS appraoch , probably pre-order traversal
+Traverse the tree to find if current > max, if yes, increase , except the root
+
+
+dfs(root, max) TreeNode{
+	if root == nil {
+		return nil
+	}
+
+	if root.Val > max{
+		incerase
+	} else {
+		return root
+	}
+	max = findMax(max, root.Val)
+
+	dfs(root.left, max)
+	dfs(root.right, max
+    return root
+
+}
+
+  2
+
+ 1  1
+3     5
+*/
+
+func goodNodesTree(root *TreeNode) int {
+
+	count := 0
+
+	max := math.MinInt
+	var dfs func(root *TreeNode, max int) int
+	dfs = func(root *TreeNode, max int) int {
+		if root == nil {
+			return 0
+		}
+
+		if root.Val >= max {
+			count++
+		}
+
+		max = findMax(max, root.Val)
+
+		dfs(root.Left, max)
+		dfs(root.Right, max)
+
+		return 123123
+	}
+
+	dfs(root, max)
+	return count
+
+}
+
+/*
+in order traverse,
+matain a max varibale, if current.val < max then return false,
+ 2
+1 3
+if root == nil {
+	return true
+}
+
+dfs(root.left, root.val)
+
+if root.val < previous {
+	return false
+}
+
+dfs(root.right)
+
+
+
+ 2
+1 3
+
+ 2
+
+1
+
+Cannot really use if previousVal is bigger than current value
+*/
+
+func isValidBST2(root *TreeNode) bool {
+
+	var dfs func(root *TreeNode, leftVal int, rightVal int) bool
+	dfs = func(root *TreeNode, leftVal int, rightVal int) bool {
+
+		if root == nil {
+			return true
+		}
+		if root.Val > leftVal {
+			return false
+		}
+
+		left := dfs(root.Left, root.Val, rightVal)
+
+		if root.Val < rightVal {
+			return false
+		}
+
+		right := dfs(root.Right, leftVal, root.Val)
+
+		return left && right
+
+	}
+
+	return dfs(root, math.MaxInt, math.MinInt)
+
+}
+
+func print_list_recursive(head *ListNode, previous int) bool {
+	if head == nil {
+		return true
+	}
+	fmt.Printf("number now is %d, number previous is %d", head.Val, previous)
+
+	if head.Val < previous {
+		return false
+	}
+	return print_list_recursive(head.Next, head.Val)
+}
+
+func pow(a int, b int) int {
+	temp := 1
+	sum := 1
+
+	for temp < b {
+
+		if temp == b/2 && b%2 == 0 {
+			return 2 * sum
+		} else if temp == b/2 && b%2 == 1 {
+			return 2 * sum * a
+		}
+		sum = sum * a
+	}
+	return 1
+
+}
+
+/*
+   5
+ 3   6
+1 4
+
+stack,
+
+while stack || node
+	while root != nil
+		stakc.push(root)
+		root = root.left
+
+	node := stack.pop()
+	//print
+	node = node.right
+
+
+
+*/
+
+func kSmallestBST(root *TreeNode, k int) int {
+
+	var dfs func(root *TreeNode, k int, r *int) int
+	count := 0
+	result := -1
+	dfs = func(root *TreeNode, k int, r *int) int {
+
+		if root == nil {
+			return 0
+		}
+
+		dfs(root.Left, k, r)
+
+		// print root.val
+
+		// fmt.Printf("%v ", root.Val)
+		count++
+		if count == k {
+			*r = root.Val
+			return 0
+		}
+
+		dfs(root.Right, k, r)
+
+		return 0
+
+	}
+
+	dfs(root, k, &result)
+	return result
+
+}
+
+/*
+
+ 2
+1 3 pre[2,1,3], in-order[1 2 3]
+root is pre[0]
+
+root = TreeNode(pre[0])
+rootIndexInOrder = inorder.index(pre[0]), rootIndexInOrder indicates how many items in the left and right
+root.left = getLeft(pre[1:rootIndexInOrder+1], inorder[:rootIndexInOrder])
+root.right = getRight(pre[rootIndexInOrder+1:],inorder[:rootIndexInOrder+1:] )
+return root
+
+
+linkedlist insert recursion
+
+
+insertList(val, head) {
+
+	if head == nill {
+		newNode = ListNode(val)
+		return newNode
+	}
+
+	head.next = insertList(val, head.next)
+}
+
+
+*/
+
+func buildTree(preOrder []int, inOrder []int) *TreeNode {
+	return nil
+}
+
+/*
+If val is negative, then assign it to 0
+2 steps:
+1. Get left or right result
+2. add together to the current node val
+3. do some compare
+4. max is a global variable
+
+if root == nil {
+	return 0
+}
+
+left = dfs(root.left)
+right = dfs(root.right)
+sum = left + right + root.Val
+max = (sum, max)
+return max(left + root.val, right + root.val)
+
+
+
+
+
+*/
+// func maxPathSum2(root *TreeNode) int {
+
+// 	var dfs func(root *TreeNode) int
+// 	dfs = func(root *TreeNode) int {
+// 		if root == nil{
+// 			return 0
+// 		}
+
+// 	}
+// }
+
+/*
+BST
+    7
+  3   8
+1  4
+ root, p, q
+
+ if root == nil {
+	return nil
+ }
+
+ if root == p && root != nil {
+	return p
+ }
+
+ if root == q && root != nil {
+	return q
+ }
+
+ if p.Val < root.Val || q.Val < root.Val{
+	left  = dfs(root.Left, p, q)
+ }
+
+
+ if p.val > root.Val || q.val > root.Val {
+	right = dfs(root.right, p, q)
+ }
+
+ return root || (left || right)
+
+
+
+***************************
+
+Non BST
+
+    1
+ 3     4
+5 6
+if root == nil {
+	return nil
+}
+
+if root == q || root == p
+	return root
+
+left = dfs(root.left, p, q)
+right = dfs(root.left, p, q)
+
+if left return left
+
+
+
+*/
+/*
+
+
+
+
+
+func courseScheduler(numCourses int, prerequisites [][]int) {
+	preReqMap := make(map[int][]int)
+
+	for _, val := range(prerequisites) {
+		preReqMap[val[0]] = append(preReqMap[val[0]],val[1] )
+	}
+
+
+	finishedCourseSet := make(map[int]bool)
+	for k, val := range(preReqMap) {
+		if len(val) == 0 {
+
+		} else {
+
+		}
+
+	}
+
+
+
+}
+
+*/
