@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"george/internal"
 	"math"
+	"sort"
 )
 
 type ListNode = internal.ListNode
@@ -156,7 +157,14 @@ func main() {
 	rootNode.Left = leftNode
 	rootNode.Right = rightNode
 	// isValidBST2(rootNode)
-	kSmallestBST(rootNode, 1)
+	// kSmallestBST(rootNode, 1)
+	// generateParenthesis(3)
+	// subsets([]int{1, 2, 3})
+
+	// combinationSum2UniqueNumber([]int{10, 1, 2, 7, 6, 1, 5}, 8)
+	// combinationSum2UniqueNumber([]int{10, 1, 2, 7, 6, 1, 5}, 8)
+	// combinationSum2UniqueNumber([]int{1, 2, 2, 2, 5}, 5)
+	// threeSum([]int{2, -3, 0, -2, -5, -5, -4, 1, 2, -2, 2, 0, 2, -4, 5, 5, -10})
 
 }
 
@@ -677,9 +685,104 @@ for i := range nums {
 
 */
 
-// func threeSum(number []int) [][]int {
+/*
 
-// }
+Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]
+find all sum of subsets is zero
+
+-4 -1 -1 0 1 2
+nums[i] + nums[j] + nums[k]
+
+for i := range(nums):
+  j = i, k = len(nums) - 1
+  for j < k:
+	if nums[i] + nums[j] + nums[k] > target {
+		k--
+	} else if nums[i] + nums[j] + nums[k] < target {
+		j++
+	} else {
+		append to results
+	}
+
+*/
+
+func threeSum(nums []int) [][]int {
+	var j, k int
+	var results = [][]int{}
+	sort.Ints(nums)
+
+	for i := range nums {
+
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		j = i + 1
+		k = len(nums) - 1
+
+		for j < k {
+
+			if nums[i]+nums[j]+nums[k] > 0 {
+				k--
+			} else if nums[i]+nums[j]+nums[k] < 0 {
+				j++
+			} else {
+				results = append(results, []int{nums[i], nums[j], nums[k]})
+				for j < k && nums[j] == nums[j+1] {
+					j++
+				}
+
+				for k > j && nums[k] == nums[j-1] {
+					k--
+				}
+				k--
+				j++
+			}
+		}
+	}
+	return results
+}
+
+/*
+
+
+
+
+ */
+
+func threeSumBC(nums []int) [][]int {
+	res := [][]int{}
+	var dfs func(nums []int, start int, temp []int, target int)
+	sort.Ints(nums)
+	dfs = func(nums []int, start int, temp []int, target int) {
+
+		if len(temp) > 3 {
+			return
+		}
+
+		if target == 0 && len(temp) == 3 {
+			tempArr := make([]int, len(temp))
+			copy(tempArr, temp)
+			res = append(res, tempArr)
+
+		}
+
+		for i := start; i < len(nums); i++ {
+			if i > start && nums[i] == nums[i-1] {
+				continue
+			}
+			temp = append(temp, nums[i])
+			dfs(nums, i+1, temp, target-nums[i])
+			temp = temp[:len(temp)-1]
+		}
+
+	}
+
+	dfs(nums, 0, []int{}, 0)
+
+	return res
+
+}
 
 /*
 Remove nth node from the end of list
@@ -3731,15 +3834,11 @@ func isValidBST2(root *TreeNode) bool {
 		if root == nil {
 			return true
 		}
-		if root.Val > leftVal {
+		if root.Val > leftVal || root.Val < rightVal {
 			return false
 		}
 
 		left := dfs(root.Left, root.Val, rightVal)
-
-		if root.Val < rightVal {
-			return false
-		}
 
 		right := dfs(root.Right, leftVal, root.Val)
 
@@ -3983,3 +4082,248 @@ func courseScheduler(numCourses int, prerequisites [][]int) {
 }
 
 */
+
+/*
+Fib number
+ 0 1 1 2 3 5 8
+ 0 1 2 3 4 5 6
+
+ f(0) = 0
+ f(1) = 1
+
+
+ f(6) = f(5) + f(4)
+ 	f(5) = f(4) + f(1)
+		f(4) = f(3)+f(1)
+
+
+	f(4) = f(3)+f(1)
+
+global cache
+fib(n)
+
+if n in cache:
+return cache[n]
+
+if n < 2 {
+	return n
+}
+
+result = fib(n-1) + fib(n-2)
+cache(n) = result
+
+return result
+
+*/
+
+func fib(n int) int {
+
+	var fib func(nn int) int
+	var result int
+
+	globalCache := make(map[int]int)
+
+	fib = func(n int) int {
+
+		if _, ok := globalCache[n]; ok {
+			return globalCache[n]
+		}
+		if n < 2 {
+			return n
+		}
+
+		result = fib(n-1) + fib(n-2)
+		globalCache[n] = result
+		return result
+	}
+
+	return fib(n)
+
+}
+
+func generateParenthesis(n int) []string {
+	res := []string{}
+
+	var dfs func(left int, right int, track string)
+
+	dfs = func(left int, right int, track string) {
+		if len(track) == 2*n {
+			res = append(res, track)
+			return
+		}
+
+		if left < n {
+			track = track + "("
+			dfs(left+1, right, track)
+			track = track[:len(track)-1]
+		}
+
+		if left > right {
+			track = track + ")"
+			dfs(left, right+1, track)
+			track = track[:len(track)-1]
+		}
+
+	}
+
+	dfs(0, 0, "")
+	return res
+}
+
+/*
+Input [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+
+
+
+*/
+
+func subsets(nums []int) [][]int {
+
+	result := [][]int{}
+	var dfs func(nums []int, temp []int, i int)
+	dfs = func(nums []int, temp []int, j int) {
+
+		subsetCopy := make([]int, len(temp))
+		copy(subsetCopy, temp)
+		result = append(result, subsetCopy)
+
+		for i := j; i < len(nums); i++ {
+			temp = append(temp, nums[i])
+			dfs(nums, temp, i+1)
+			temp = temp[:len(temp)-1]
+		}
+
+	}
+
+	dfs(nums, []int{}, 0)
+
+	return result
+
+}
+
+/*
+
+Input:
+nums = [2,5,6,9]
+target = 9
+
+Output: [[2,2,5],[9]]
+
+2  9
+2
+5
+
+base cases:
+results[]int
+backtracking(sums, target, )
+
+    temp = 0
+	for val in sums:{
+		temp+=val
+	}
+	if temp == target {
+		append sums to results
+		return
+	}
+
+	for i in range(nums){
+		append nums[i] to sum
+		backtrackingsum, target)
+		delete nums[i] in sum
+	}
+
+
+}
+
+
+*/
+
+func combinationSumCanUseSameNumber(candidates []int, target int) [][]int {
+
+	var results = [][]int{}
+
+	var backtracking func(start int, nums []int, target int, sums []int)
+	backtracking = func(start int, nums []int, target int, sums []int) {
+		// temp := 0
+
+		if target < 0 {
+			return
+		}
+
+		if target == 0 {
+			tempSlice := make([]int, len(sums))
+			copy(tempSlice, sums)
+			results = append(results, tempSlice)
+			return
+
+		}
+
+		for i := start; i < len(nums); i++ {
+			sums = append(sums, nums[i])
+
+			backtracking(i, nums, target-nums[i], sums)
+
+			sums = sums[:len(sums)-1]
+		}
+		// for _, val := range nums {
+		// 	sums = append(sums, val)
+
+		// 	backtracking(0, nums, target, sums)
+
+		// 	sums = sums[:len(sums)-1]
+		// }
+
+	}
+	backtracking(0, candidates, target, []int{})
+	return results
+
+}
+
+func combinationSum2UniqueNumber(candidates []int, target int) [][]int {
+
+	var results = [][]int{}
+
+	sort.Ints(candidates)
+
+	// memCache := make(map[]bool, 10)
+
+	var backtracking func(start int, nums []int, target int, sums []int)
+	backtracking = func(start int, nums []int, target int, sums []int) {
+
+		if target < 0 {
+			return
+		}
+
+		if target == 0 {
+			tempSlice := make([]int, len(sums))
+			copy(tempSlice, sums)
+			results = append(results, tempSlice)
+			return
+
+		}
+
+		for i := start; i < len(nums); i++ {
+
+			// this is basically in the 2nd big loop
+			if i > start && nums[i] == nums[i-1] {
+				continue
+			}
+
+			// if i > 0 && nums[i] == nums[i-1] {
+			// 	continue
+			// }
+
+			sums = append(sums, nums[i])
+
+			backtracking(i+1, nums, target-nums[i], sums)
+
+			sums = sums[:len(sums)-1]
+		}
+
+	}
+	backtracking(0, candidates, target, []int{})
+	return results
+
+}
