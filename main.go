@@ -165,6 +165,7 @@ func main() {
 	// combinationSum2UniqueNumber([]int{10, 1, 2, 7, 6, 1, 5}, 8)
 	// combinationSum2UniqueNumber([]int{1, 2, 2, 2, 5}, 5)
 	// threeSum([]int{2, -3, 0, -2, -5, -5, -4, 1, 2, -2, 2, 0, 2, -4, 5, 5, -10})
+	coinChangeRec([]int{1, 5, 10}, 12)
 
 }
 
@@ -4053,35 +4054,53 @@ if left return left
 
 
 */
-/*
 
-
-
-
-
-func courseScheduler(numCourses int, prerequisites [][]int) {
+func courseScheduler(numCourses int, prerequisites [][]int) bool {
 	preReqMap := make(map[int][]int)
+	visitedCrs := make(map[int]int)
 
-	for _, val := range(prerequisites) {
-		preReqMap[val[0]] = append(preReqMap[val[0]],val[1] )
+	for _, val := range prerequisites {
+		preReqMap[val[0]] = append(preReqMap[val[0]], val[1])
 	}
 
+	var dfs func(crs int, vistedCrs map[int]int) bool
+	dfs = func(crs int, vistedCrs map[int]int) bool {
 
-	finishedCourseSet := make(map[int]bool)
-	for k, val := range(preReqMap) {
-		if len(val) == 0 {
+		if visitedCrs[crs] == 1 {
+			return false
+		}
 
-		} else {
+		if visitedCrs[crs] == -1 {
+			return true
+		}
+
+		visitedCrs[crs] = 1
+
+		for _, crs := range preReqMap[crs] {
+
+			if dfs(crs, vistedCrs) == false {
+				return false
+			}
 
 		}
 
+		visitedCrs[crs] = -1
+
+		return true
+
 	}
 
+	for i := 0; i < numCourses; i++ {
+		// visitedCrs[i] = 1
+		if !dfs(i, visitedCrs) {
+			return false
+		}
+		// visitedCrs[i] = -1
+	}
 
+	return true
 
 }
-
-*/
 
 /*
 Fib number
@@ -4325,5 +4344,98 @@ func combinationSum2UniqueNumber(candidates []int, target int) [][]int {
 	}
 	backtracking(0, candidates, target, []int{})
 	return results
+
+}
+
+/*
+
+Input: coins = [1,5,10], amount = 12
+
+Output: 3
+
+
+
+
+*/
+
+func coinChangeRec(coins []int, amount int) int {
+	var dfs func(coins []int, amount int, numOfCoins int, start int) int
+	numOfCoinsMax := math.MaxInt
+
+	memo := make(map[int]int)
+
+	dfs = func(coins []int, amount int, numOfCoins int, start int) int {
+
+		if amount == 0 && numOfCoins < numOfCoinsMax {
+			numOfCoinsMax = numOfCoins
+			return numOfCoinsMax
+
+		}
+		if amount < 0 {
+			numOfCoinsMax = -1
+			return -1
+		}
+
+		var ans int
+		for i := start; i < len(coins); i++ {
+			ans = dfs(coins, amount-coins[i], numOfCoins+1, i)
+		}
+		memo[amount] = ans
+
+		return memo[amount]
+
+	}
+
+	dfs(coins, amount, 0, 0)
+	if numOfCoinsMax == math.MaxInt {
+		return -1
+	} else {
+		return numOfCoinsMax
+	}
+
+}
+
+func fib3(n int) int {
+	cache := make(map[int]int)
+
+	var fib = func(n int) int {
+
+		if _, ok := cache[n]; ok {
+			return cache[n]
+		}
+		if n < 2 {
+			return 1
+		}
+
+		result := fib(n-1) + fib(n-2)
+		cache[n] = result
+		return result
+	}
+
+	return fib(n)
+
+}
+
+func combinationSumAny(candidates []int, target int) bool {
+
+	var backtracking func(candidates []int, target int) bool
+
+	backtracking = func(candidates []int, target int) bool {
+
+		if target < 0 {
+			return false
+		}
+		if target == 0 {
+			return true
+		}
+
+		for i := 0; i < len(candidates); i++ {
+			return backtracking(candidates, target-candidates[i])
+		}
+
+		return false
+
+	}
+	return backtracking(candidates, target)
 
 }
