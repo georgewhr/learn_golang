@@ -3,12 +3,21 @@ package internal
 /*
 Implement a LRU cache
 Requirements:
-Has Put, Get
-discard least used items
+LRU cache, age out the least used item
+init(capacity)
+get, O(1)
+put, O(1)
 
-Get(k), get value of key, if not return -1
-Put, Put k:v pair, return the existing value, otherwise return null
-Parameters: Cache size,
+
+Put(val)
+1. Check if size == cap, if yes, remove last item from the queue, then remove from map
+2. Add new Item in the map, then insert into the queue
+
+
+Get(key)
+1. check if key exist
+2. get from map return the list node
+3. remove the list node, and then insert again.
 
 */
 

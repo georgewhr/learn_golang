@@ -165,7 +165,14 @@ func main() {
 	// combinationSum2UniqueNumber([]int{10, 1, 2, 7, 6, 1, 5}, 8)
 	// combinationSum2UniqueNumber([]int{1, 2, 2, 2, 5}, 5)
 	// threeSum([]int{2, -3, 0, -2, -5, -5, -4, 1, 2, -2, 2, 0, 2, -4, 5, 5, -10})
-	coinChangeRec([]int{1, 5, 10}, 12)
+	// coinChangeRec([]int{1, 5, 10}, 12)
+	// combinationSumAny([]int{3, 3}, 6)
+	// combinationSum4([]int{1, 2, 3}, 4)
+	// comboSumShortrest([]int{2, 3, 5}, 8)
+	// climbingStairsBC(3)
+	// houseRober2([]int{1, 2, 3})
+	// maxProduct([]int{2, 3, -2, 4})
+	maxProduct([]int{-2, 0, -1})
 
 }
 
@@ -893,23 +900,15 @@ func isValidParenthese(s string) bool {
 	}
 
 	for i := 0; i < inputLenth; i++ {
-		if s[i] == '{' {
-			myLocalStack.Push('}')
-
-		} else if s[i] == '[' {
-			myLocalStack.Push(']')
-
-		} else if s[i] == '(' {
-			myLocalStack.Push(')')
-		} else {
-
+		if s[i] == '(' || s[i] == '{' || s[i] == '[' {
 			myLocalStack.Push(s[i])
-
-			if myLocalStack.Size() > 0 && myLocalStack.Pop().(rune) != rune(s[i]) {
+		} else {
+			if myLocalStack.Size() != 0 && (myLocalStack.Peek() == '(' && s[i] == ')' ||
+				myLocalStack.Peek() == '{' && s[i] == '}' ||
+				myLocalStack.Peek() == '[' && s[i] == ']') {
+				myLocalStack.Pop()
+			} else {
 				return false
-			}
-			if s[i] == '}' || s[i] == ')' || s[i] == ']' {
-				myLocalStack.Push(s[i])
 			}
 		}
 
@@ -917,9 +916,9 @@ func isValidParenthese(s string) bool {
 
 	if myLocalStack.Size() != 0 {
 		return false
+	} else {
+		return true
 	}
-
-	return true
 
 }
 
@@ -1379,6 +1378,39 @@ func searchInsert(nums []int, target int) int {
 	}
 
 	return len(nums)
+
+}
+
+/*
+[1,3,5,6], target = 5
+l = 2, r = 3
+
+[1,3,5,6], target = 7
+l = 2, r = 3, mid = 2
+
+[1,3,5,6], target = 0
+*/
+func searchInsertBin(nums []int, target int) int {
+
+	l, r := 0, len(nums)-1
+
+	for l < r {
+
+		mid := l + (r-l)/2
+		if target < nums[mid] {
+			r = mid - 1
+
+		} else if target > nums[mid] {
+			l = mid + 1
+		} else {
+			return mid
+		}
+
+	}
+	if nums[l] < target {
+		return l + 1
+	}
+	return l
 
 }
 
@@ -2991,10 +3023,10 @@ func mergeTwoList(l1 *ListNode, l2 *ListNode) {
 
 }
 
-func reverseLinkedList(head *ListNode) {
+func reverseLinkedList(head *ListNode) *ListNode {
 
 	cur := head
-	pre := new(ListNode)
+	var pre *ListNode
 
 	for cur != nil {
 		temp := cur.Next
@@ -3002,6 +3034,8 @@ func reverseLinkedList(head *ListNode) {
 		pre = cur
 		cur = temp
 	}
+
+	return pre
 
 }
 
@@ -3864,19 +3898,17 @@ func print_list_recursive(head *ListNode, previous int) bool {
 }
 
 func pow(a int, b int) int {
-	temp := 1
-	sum := 1
 
-	for temp < b {
-
-		if temp == b/2 && b%2 == 0 {
-			return 2 * sum
-		} else if temp == b/2 && b%2 == 1 {
-			return 2 * sum * a
-		}
-		sum = sum * a
+	if b == 0 {
+		return 1
 	}
-	return 1
+
+	result := pow(a, b/2) * a
+
+	if b%2 == 1 {
+		result = result * a
+	}
+	return result
 
 }
 
@@ -4138,8 +4170,6 @@ return result
 func fib(n int) int {
 
 	var fib func(nn int) int
-	var result int
-
 	globalCache := make(map[int]int)
 
 	fib = func(n int) int {
@@ -4147,15 +4177,19 @@ func fib(n int) int {
 		if _, ok := globalCache[n]; ok {
 			return globalCache[n]
 		}
-		if n < 2 {
-			return n
+		if n == 0 {
+			return 0
 		}
 
-		result = fib(n-1) + fib(n-2)
-		globalCache[n] = result
-		return result
-	}
+		if n == 1 {
+			return 1
+		}
 
+		result := fib(n-1) + fib(n-2)
+		globalCache[n] = result
+		return globalCache[n]
+
+	}
 	return fib(n)
 
 }
@@ -4353,46 +4387,100 @@ Input: coins = [1,5,10], amount = 12
 
 Output: 3
 
+base case, amount == 0 return , amount < 0
 
+memo[amount] = val, val is smallest number of combination plus amount to target
 
-
+0    1    2    3    4    5    6    7    8    9    10    11    12
+          1                   2     1              2      1
 */
 
 func coinChangeRec(coins []int, amount int) int {
-	var dfs func(coins []int, amount int, numOfCoins int, start int) int
-	numOfCoinsMax := math.MaxInt
 
 	memo := make(map[int]int)
 
-	dfs = func(coins []int, amount int, numOfCoins int, start int) int {
+	var backtracking func(coins []int, amount int, collection []int) int
+	backtracking = func(coins []int, amount int, collection []int) int {
 
-		if amount == 0 && numOfCoins < numOfCoinsMax {
-			numOfCoinsMax = numOfCoins
-			return numOfCoinsMax
-
-		}
 		if amount < 0 {
-			numOfCoinsMax = -1
 			return -1
 		}
 
-		var ans int
-		for i := start; i < len(coins); i++ {
-			ans = dfs(coins, amount-coins[i], numOfCoins+1, i)
+		if amount == 0 {
+			return 0
 		}
-		memo[amount] = ans
 
+		if _, ok := memo[amount]; ok {
+			return memo[amount]
+		}
+
+		minCnt := math.MaxInt
+		for i := 0; i < len(coins); i++ {
+			collection = append(collection, coins[i])
+			res := backtracking(coins, amount-coins[i], collection)
+			collection = collection[:len(collection)-1]
+			if res == -1 {
+				continue
+			}
+			if res < minCnt {
+				minCnt = res + 1
+			}
+		}
+		// This is like checking the root tree after it finished all the childs
+		if minCnt == math.MaxInt {
+			memo[amount] = -1
+		} else {
+			memo[amount] = minCnt
+
+		}
 		return memo[amount]
+	}
+	fmt.Print("asd")
+	rt := backtracking(coins, amount, []int{})
+	return rt
 
+}
+
+func coinChangeCheckDepth(coins []int, amount int) int {
+	globalCnt := math.MaxInt
+	memo := make([]int, amount+1)
+
+	// Initialize memo: fill with MaxInt except for base case 0
+	for i := range memo {
+		memo[i] = math.MaxInt
+	}
+	memo[0] = 0 // base case: 0 coins to make amount 0
+
+	var backtracking func(amount int, depth int)
+	backtracking = func(amount int, depth int) {
+		if amount < 0 {
+			return
+		}
+
+		if depth >= memo[amount] {
+			// Already found a shorter or equal way to this amount
+			return
+		}
+		memo[amount] = depth
+
+		if amount == 0 {
+			if depth < globalCnt {
+				globalCnt = depth
+			}
+			return
+		}
+
+		for _, coin := range coins {
+			backtracking(amount-coin, depth+1)
+		}
 	}
 
-	dfs(coins, amount, 0, 0)
-	if numOfCoinsMax == math.MaxInt {
+	backtracking(amount, 0)
+
+	if globalCnt == math.MaxInt {
 		return -1
-	} else {
-		return numOfCoinsMax
 	}
-
+	return globalCnt
 }
 
 func fib3(n int) int {
@@ -4419,9 +4507,13 @@ func fib3(n int) int {
 func combinationSumAny(candidates []int, target int) bool {
 
 	var backtracking func(candidates []int, target int) bool
+	cache := make(map[int]bool)
 
 	backtracking = func(candidates []int, target int) bool {
 
+		if _, ok := cache[target]; ok {
+			return true
+		}
 		if target < 0 {
 			return false
 		}
@@ -4430,12 +4522,672 @@ func combinationSumAny(candidates []int, target int) bool {
 		}
 
 		for i := 0; i < len(candidates); i++ {
-			return backtracking(candidates, target-candidates[i])
+			result := backtracking(candidates, target-candidates[i])
+			cache[target] = result
+			if result {
+				return true
+			}
 		}
 
 		return false
 
 	}
 	return backtracking(candidates, target)
+
+}
+
+func combinationSum4(nums []int, target int) int {
+
+	var backtracking func(candidates []int, target int) int
+	// global := 0
+	cache := make(map[int]int)
+	// results := [][]int{}
+
+	backtracking = func(candidates []int, target int) int {
+
+		if _, ok := cache[target]; ok {
+			return cache[target]
+		}
+
+		if target == 0 {
+			return 1
+		}
+
+		if target < 0 {
+			return 0
+		}
+
+		count := 0
+		for i := 0; i < len(candidates); i++ {
+			count = backtracking(candidates, target-candidates[i]) + count
+
+		}
+		cache[target] = count
+		return count
+
+	}
+	cc := backtracking(nums, target)
+	return cc
+
+}
+
+func pow2(x int, n int) int {
+
+	if n == 0 {
+		return 1
+	}
+	if n == 1 {
+		return x
+	}
+
+	return pow2(x, n-1) * x
+}
+
+func comboSumShortrest(nums []int, target int) int {
+
+	var dfs func(nums []int, target int, temp []int) int
+
+	maxNum := math.MaxInt8
+
+	dfs = func(nums []int, target int, temp []int) int {
+		if target < 0 {
+			return 0
+		}
+
+		if target == 0 {
+			// get lenth
+			if len(temp) < maxNum {
+				maxNum = len(temp)
+			}
+			return 0
+		}
+
+		for i := 0; i < len(nums); i++ {
+			temp = append(temp, nums[i])
+			dfs(nums, target-nums[i], temp)
+			temp = temp[:len(temp)-1]
+		}
+		return 0
+	}
+
+	dfs(nums, target, []int{})
+	return maxNum
+
+}
+
+/*
+climbing stairs
+
+if target < 0 {
+	return
+}
+if target == 0 {
+	cnt++
+}
+
+
+for i =1 ;i<=2;i++ {
+	dfs(target - i)
+}
+
+
+
+
+*/
+
+func climbingStairsBC(n int) int {
+
+	memo := make(map[int]int)
+	var dfs func(arget int) int
+	dfs = func(target int) int {
+
+		if target < 0 {
+			return 0
+		}
+		if _, ok := memo[target]; ok {
+			return memo[target]
+		}
+
+		if target == 0 {
+			return 1
+		}
+
+		// var steps int
+		steps := dfs(target-1) + dfs(target-2)
+		// for i := 1; i <= 2; i++ {
+		// 	steps += dfs(target - i)
+		// }
+
+		// steps = dfs(target-1) + dfs(target-2)
+		memo[target] = steps
+
+		return memo[target]
+
+	}
+	rt := dfs(n)
+
+	return rt
+}
+
+/*
+A palindrome is a string that reads the same forward and backward.
+
+If there are multiple palindromic substrings that have the same length, return any one of them.
+
+Example 1:
+
+Input: s = "ababd"
+
+Output: "bab"
+*/
+
+// func longestPalindrome(s string) int {
+
+// }
+
+/*
+You are given an integer array nums where nums[i] represents the amount of money the ith house has. The houses are arranged in a straight line, i.e. the ith house is the neighbor of the (i-1)th and (i+1)th house.
+
+You are planning to rob money from the houses, but you cannot rob two adjacent houses because the security system will automatically alert the police if two adjacent houses were both broken into.
+
+Return the maximum amount of money you can rob without alerting the police.
+
+Example 1:
+
+Input: nums = [1,1,3,3]
+
+Output: 4
+
+1 house
+S1 = max(h1)
+2 houses
+S2 = max(S1,h2)
+3 houses
+S3 = max(S2, S1+h3
+4 houses
+S4 = max()
+
+
+
+*/
+
+// func houseRober([]int nums) int {
+
+// }
+
+/*
+ */
+func houseRoberBCandMemo(nums []int) int {
+
+	// maxNum := math.MinInt8
+	memo := make(map[int]int)
+	var dfs func(index int, nums []int) int
+	dfs = func(index int, nums []int) int {
+		if index >= len(nums) {
+			return 0
+		}
+
+		if _, ok := memo[index]; ok {
+			return memo[index]
+		}
+
+		rob := nums[index] + dfs(index+2, nums)
+		skip := dfs(index+1, nums)
+		max := findMax(rob, skip)
+
+		memo[index] = max
+		return max
+	}
+
+	rt := dfs(0, nums)
+
+	return rt
+
+}
+
+func houseRober2(nums []int) int {
+
+	memo := make(map[int]int)
+
+	var dfs func(nums []int, index int) int
+	dfs = func(nums []int, index int) int {
+
+		if _, ok := memo[index]; ok {
+			return memo[index]
+		}
+
+		if index >= len(nums) {
+			return 0
+		}
+
+		rob := nums[index] + dfs(nums, index+2)
+		skip := dfs(nums, index+1)
+		memo[index] = findMax(rob, skip)
+		return memo[index]
+
+	}
+	if len(nums) > 2 {
+		nums1 := nums[:len(nums)-1]
+		nums2 := nums[1:]
+		rt1 := dfs(nums1, 0)
+		memo = make(map[int]int)
+		rt2 := dfs(nums2, 0)
+		return findMax(rt1, rt2)
+	} else {
+		return dfs(nums, 0)
+	}
+
+}
+
+/*
+
+the house is formed by a binary tree, there is only one entry,
+alert will be trigger if two adjecent house is robbed .
+2 conditions,
+If the current house is robbed, I skip the subtrees,
+If not, I rob the sub trees.
+
+if rob, rob = currentNode.value + rob(currentNode.Left.Left, currentNode.Right)
+If not rob, not_rob=rob(currentNode.Left, currentNode.Right)
+return max(rob, not_rob)
+
+*/
+
+func houseRob3(root *TreeNode) int {
+
+	var dfs func(root *TreeNode) int
+	dfs = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+
+		if root.Left != nil {
+
+		}
+
+		rob := root.Val + dfs(root.Left.Left) + dfs(root.Right)
+		skip := dfs(root.Left) + dfs(root.Right)
+
+		return findMax(rob, skip)
+	}
+
+	return dfs(root)
+
+}
+
+func findmaxBranchTree(node *TreeNode) int {
+	if node == nil {
+		return 0
+	}
+
+	left := node.Val + findmaxBranchTree(node.Left)
+	right := node.Val + findmaxBranchTree(node.Right)
+
+	return findMax(left, right)
+}
+
+/*
+Check if string has any Palindrome sub string
+bcdc
+
+	for i :=0;i<len(s);i++{
+		l, r := i, i
+
+		for l >= 0 and r < len(nums){
+
+			if nums[l] == nums[r] {
+				temp.append(nums[l])
+			}
+			l--
+			r++
+		}
+
+		r = i + 1
+
+			for l >= 0 and r < len(nums){
+
+			if nums[l] == nums[r] {
+				temp.append(nums[l])
+			}
+			l--
+			r++
+		}
+
+}
+
+bab
+*/
+func longestPalindrome(s string) string {
+	sLen := len(s)
+	// result := make([]string, 10)
+	resLen := 0
+	res := ""
+
+	for i := 0; i < sLen; i++ {
+		for j := i; j < sLen; j++ {
+			l, r := i, j
+
+			for s[l] == s[r] && l < r {
+				l++
+				r--
+			}
+
+			if l >= r && resLen < j-1+1 {
+				resLen = j - i + 1
+				res = s[i : j+1]
+			}
+
+		}
+
+	}
+
+	return res
+
+}
+
+/*
+Max product
+Input: nums = [1,2,-3,4]
+
+Output: 4
+
+
+*/
+
+func maxProduct(nums []int) int {
+
+	minNum := math.MinInt32
+	var dfs func(nums []int, start int, sum int)
+	dfs = func(nums []int, start int, sum int) {
+
+		if start >= len(nums) {
+			return
+		}
+
+		if sum > minNum {
+			minNum = sum
+		}
+
+		for i := start; i < len(nums); i++ {
+			if i > start {
+				continue
+			}
+			sum = nums[i] * sum
+			dfs(nums, start+1, sum)
+			sum = 1
+		}
+
+	}
+	dfs(nums, 0, 1)
+	return minNum
+}
+
+/****************
+2nd time
+neetcode 250
+***************/
+
+/*
+nums1 =  1 2 3 4 _ _, m
+nums2 = 2 6, n
+
+	1 2 3 4 _ 6
+	1 2 3 4 4 6
+	1 2 3 3 4 5
+
+for item in nums1:
+
+	   if nums1[m-1] < nums1[n-1] {
+			nums1[m+n-1] = nums2[n-1]
+			n--
+	   } else {
+		   nums1[m+n-1] = nums1[m]
+		   m--
+	   }
+*/
+func mergeSortedArr(nums1 []int, nums2 []int, m int, n int) []int {
+
+	for n > 0 {
+		if m != 0 && nums1[m-1] < nums2[n-1] {
+			nums1[m+n-1] = nums2[n-1]
+			n--
+		} else {
+			nums1[m+n-1] = nums1[m-1]
+			m--
+		}
+	}
+
+	return nums1
+
+}
+
+/*
+
+nums[i] == nums[j] and abs(i - j) <= k.
+
+Example 1:
+
+Input: nums = [1,2,3,1], k = 3
+Output: true
+Example 2:
+
+Input: nums = [1,0,1,1], k = 1
+Output: true
+Example 3:
+
+Input: nums = [1,2,3,1,2,3], k = 2
+Output: false
+
+sliding window appraoch
+i,j = 0, 1
+
+1011
+
+
+
+
+*/
+
+func containsNearbyDuplicate(nums []int, k int) bool {
+	myMap := make(map[int]int)
+
+	for index, val := range nums {
+
+		if _, ok := myMap[val]; ok {
+			if index-myMap[val] < k {
+				return true
+			} else {
+				myMap[val] = index
+			}
+
+		} else {
+			myMap[val] = index
+		}
+
+	}
+
+	return false
+
+}
+
+/*
+Input: prices = [10,5,1,7,1]
+
+Output: 6
+Explanation: Buy prices[1] and sell prices[4], profit = 7 - 1 = 6.
+maxProfit = minInt
+i = 0, j = 1
+
+
+for j < len(prices)
+	if prices[j] - prices[i] < 0 {
+		i++
+		continue
+	} else {
+		max = findmax(max, prices[j] - prices[i])
+		j++
+	}
+
+
+
+
+
+*/
+
+/*
+Given a string s, find the length of the longest substring without duplicate characters.
+
+A substring is a contiguous sequence of characters within a string.
+
+Example 1:
+
+Input: s = "z x y z d b c"
+Input: s = "z x y y a b w"
+Input: s = "a a a "
+
+i,j=0, 0
+
+for j < len(nums)
+
+	if map[nums[j]]  {
+		delete()
+
+	} else {
+		map[nums[j]] = 1
+		max = findmax(max, j - i + 1)
+		j++
+	}
+
+Output: 3
+*/
+func lengthOfLongestSubstring2(s string) int {
+	myMap := map[byte]bool{}
+	max := 1
+
+	i, j := 0, 0
+	for j < len(s) {
+		if _, ok := myMap[s[j]]; ok {
+			delete(myMap, s[i])
+			i++
+		} else {
+			myMap[s[j]] = true
+			max = findMax(max, j-i+1)
+			j++
+
+		}
+	}
+
+	return max
+
+}
+
+/*
+Example 1:
+
+Input: s = "XYYX", k = 2
+
+Output: 4
+Explanation: Either replace the 'X's with 'Y's, or replace the 'Y's with 'X's.
+
+Example 2:
+
+Input: s = "AAABABB", k = 1
+
+Output: 5
+XYYX,
+}
+
+A A A B| B B B D, k =1
+r - l + 1 - maxCnt <= k
+*/
+func characterReplacement(s string, k int) int {
+	myMap := map[byte]int{}
+	maxCntKey, l, r := 1, 0, 0
+	max := 0
+
+	for r = 0; r < len(s); r++ {
+		myMap[s[r]]++
+		windlow_len := r - l + 1
+
+		if myMap[s[r]] > maxCntKey {
+			maxCntKey = myMap[s[r]]
+		}
+
+		if windlow_len-maxCntKey > k {
+			myMap[s[l]]--
+			l++
+		}
+
+		max = findMax(max, r-l+1)
+
+	}
+	return max
+
+}
+
+/*
+
+Input: target = 15, nums = [1,2,3,4,5]
+Output: 2
+Explanation: The subarray [4,3] has the minimal length under the problem constraint.
+
+find if sum equal or greater than the target,
+	if yes, get minLen, sum = sum - left, left ++
+
+*/
+
+func minSubArrayLen(target int, nums []int) int {
+	left, right, minLen, sum := 0, 0, math.MaxInt, 0
+
+	for right = 0; right < len(nums); right++ {
+		sum += nums[right]
+
+		for sum >= target {
+
+			if right-left+1 < minLen {
+				minLen = right - left + 1
+			}
+			sum -= nums[left]
+			left++
+		}
+
+	}
+
+	if minLen == math.MaxInt {
+		return 0
+	}
+	return minLen
+
+}
+
+/*
+
+
+ */
+
+func generateParenthesis2(n int) []string {
+	res := make([]string, 10)
+	// temp := make([]string, 10)
+	var dfs func(left int, right int, temp string)
+	dfs = func(left int, right int, temp string) {
+		if len(temp) == 2*n {
+			res = append(res, temp)
+		}
+
+		if left < n {
+			temp = temp + "("
+			dfs(left+1, 0, temp)
+			temp = temp[:len(temp)-1]
+
+		}
+
+		if right < n {
+			temp = temp + ")"
+			dfs(0, right+1, temp)
+			temp = temp[:len(temp)-1]
+		}
+	}
+	dfs(0, 0, "")
+	return res
 
 }
