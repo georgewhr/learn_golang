@@ -21,7 +21,7 @@ isEmpty
 */
 
 type ArrayList struct {
-	backing_arr [8]interface{}
+	backing_arr []int
 	size        int
 	init_cap    int
 }
@@ -31,4 +31,25 @@ func InitiArrayList() *ArrayList {
 		size:     0,
 		init_cap: 10,
 	}
+}
+
+func (a *ArrayList) Add(val int) {
+
+	if a.size == a.init_cap {
+		a.adjust()
+	}
+
+}
+
+func (a *ArrayList) Get(index int) {
+
+}
+
+func (a *ArrayList) adjust() {
+	newArr := make([]int, 2*a.size)
+
+	copy(newArr, a.backing_arr)
+
+	a.backing_arr = newArr
+
 }

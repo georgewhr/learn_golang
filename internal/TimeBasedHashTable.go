@@ -38,23 +38,55 @@ ds2:
 
 // var INIT_SIZE = 100
 
-// type TBHT struct {
-// 	timeMap map[int][]interface{}
+type ShardKey struct {
+	key  string
+	time int
+}
+
+// type DataNode struct {
+// 	val       string
+// 	timestamp uint64
 // }
 
-// func Construction() *TBHT {
-// 	return &TBHT{timeMap: make(map[int][]interface{})}
-// }
+type TBHT struct {
+	Map map[ShardKey][]string
+}
 
-// func (t *TBHT) Set(key int, val interface{}, timeStamp int) int {
+func ConstructionTBHT() *TBHT {
+	return &TBHT{Map: make(map[ShardKey][]string)}
+}
 
-// 	if _, ok := t.timeMap[key]; !ok {
-// 		t.timeMap[key] = make([]interface{}, INIT_SIZE)
+func (t *TBHT) Set(key string, val string, timeStamp int) {
+
+	shardKey := ShardKey{key, timeStamp}
+	if _, ok := t.Map[shardKey]; !ok {
+		t.Map[shardKey] = []string{}
+	}
+	t.Map[shardKey] = append(t.Map[shardKey], val)
+
+}
+
+/*
+
+it returns the value associated with the largest timestamp_prev
+*/
+// func (t *TBHT) Get(key string, time int) string {
+// 	shardKey := ShardKey{key, time}
+// 	if _, ok := t.Map[shardKey]; !ok {
+// 		return ""
+// 	} else {
+// 		for _, val := range t.Map[shardKey]{
+// 			if val ==
+// 		}
+
 // 	}
+// }
 
-// 	if len(t.timeMap[key]) == cap(t.timeMap[key]) {
-// 		newSlice := make([]interface{}, len(t.timeMap[key]), 2*cap(t.timeMap[key]))
-// 		copy(t.timeMap[key], newSlice)
+// func serachVal(data []DataNode, time int) {
+// 	low, high := 0, len(data)-1
+
+// 	for low < high {
+// 		mid := low + (high-low)/2
 // 	}
 
 // }

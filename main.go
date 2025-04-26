@@ -13,17 +13,40 @@ type List = internal.LinkedList
 type PriorityQueue = internal.PriorityQueue
 type Stack = internal.Stack
 type TreeNode = internal.TreeNode
+type TBHS = internal.TBHT
 
 func main() {
 	fmt.Println("Hello, world.")
 
-	// test := []string{"cir", "car"}
-	test := []string{"fla", "flw"}
-	test1 := "abc"
-	fmt.Printf("number is %s", test1[0:1])
-	output := longestCommonPrefix(test)
-	fmt.Printf("number is %f", output)
+	cloudStorage := internal.Init()
+	// cloudStorage.Add("/root/file1.mp3", "10")
+	// cloudStorage.Add("/root/file2.mp3", "56")
+	// cloudStorage.Add("/dir100/file100.mp3", "1")
+	// cloudStorage.Copy("/dir100/file100.mp3", "/dir100/copy/file100.mp3")
+	// cloudStorage.Add("/dir/file2.txt", "20")
+	// cloudStorage.Add("/dir3/file3.txt", "50")
 
+	// cloudStorage.FindFile("/root", ".mp3")
+	cloudStorage.AddUsers("george", "100")
+	cloudStorage.AddFileBy("george", "/dir/file2.txt", "40")
+	cloudStorage.Copy("/dir/file2.txt", "/dircopy/file2.tx")
+	cloudStorage.GetFileSzie("/dir/file2.txt")
+
+	// cloudStorage.AddUsers("vera", "200")
+	cloudStorage.AddFileBy("george", "/dir101/file100.mp3", "40")
+	cloudStorage.AddFileBy("george", "/dir101/file1001.mp3", "50")
+	cloudStorage.Copy("/dir101/file1001.mp3", "/dir100/copy1/file100.mp3")
+	cloudStorage.UpdateCapacity("george", "50")
+
+	// cloudStorage.AddFileBy("george", "/dir102/file1001.mp3", "50")
+
+	// test := []string{"cir", "car"}
+	// test := []string{"fla", "flw"}
+	// test1 := "abc"
+	// fmt.Printf("number is %s", test1[0:1])
+	// output := longestCommonPrefix(test)
+	// fmt.Printf("number is %f\n", output)
+	basicImplementations()
 	myList := List{}
 	myList.Insert(1)
 	myList.Insert(2)
@@ -31,11 +54,12 @@ func main() {
 	myList.Insert(4)
 	myList.Insert(5)
 
-	myNode := removeNthNodeFromEndofList(myList.Head, 2)
-	fmt.Printf("number is %f", myNode.Val)
+	// myNode := removeNthNodeFromEndofList(myList.Head, 2)
+	// fmt.Printf("number is %f", myNode.Val)
 
 	var georgetest = []int{2, 0, 2, 1, 1, 0}
 	sortColors(georgetest)
+
 	// b := []int{2, 7, 11, 13}
 	// nums := twoSum(b, 9)
 	// fmt.Println(nums)
@@ -73,6 +97,9 @@ func main() {
 
 	result := print_list_recursive(myList1.Head, -1)
 	fmt.Printf("result is %v", result)
+
+	myTBHS := internal.ConstructionTBHT()
+	myTBHS.Set("key1", "val1", 123)
 
 	// myList2 := List{}
 	// myList2.Insert(6)
@@ -5189,5 +5216,105 @@ func generateParenthesis2(n int) []string {
 	}
 	dfs(0, 0, "")
 	return res
+
+}
+func inorderTraversal2(root *TreeNode) []int {
+
+	res := []int{}
+
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		traverse(root.Left)
+		res = append(res, root.Val)
+		traverse(root.Right)
+	}
+
+	traverse(root)
+	return res
+
+}
+
+func invertBinaryTree3(root *TreeNode) *TreeNode {
+
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+
+		if root == nil {
+			return
+		}
+
+		temp := root.Left
+		root.Left = root.Right
+		root.Right = temp
+		traverse(root.Left)
+		traverse(root.Right)
+	}
+	traverse(root)
+	return root
+
+}
+
+/*
+BFS appraoch
+
+queue
+
+queue.add(root)
+
+while !queue.empty {
+	for lenth in queue{
+		node = queue.dequeue()
+		swap(node.left. right)
+		queue.enqueue(node.left)
+		queue.enqueue(node.right)
+
+	}
+}
+
+*/
+
+func basicImplementations() {
+
+	userAccount := make(map[string]map[string]interface{})
+
+	if userAccount["123"] == nil {
+		userAccount["123"] = make(map[string]interface{})
+	}
+	userAccount["123"]["name"] = "george"
+	userAccount["123"]["transcation"] = 3
+	userAccount["123"]["amount"] = 100
+	userAccount["123"]["timestamp"] = []int{1, 2, 3}
+
+	if userAccount["456"] == nil {
+		userAccount["456"] = make(map[string]interface{})
+	}
+	userAccount["456"]["name"] = "george"
+	userAccount["456"]["transcation"] = 2
+	userAccount["456"]["amount"] = 101
+	userAccount["456"]["timestamp"] = []int{1, 2, 3, 4, 5, 6}
+	fmt.Printf("my map value is %v", userAccount)
+
+	// aa := userAccount["456"]["timestamp"].([]int)
+
+	var result []map[string]interface{}
+	for userId, info := range userAccount {
+		entry := make(map[string]interface{})
+		entry["userId"] = userId
+		for k, v := range info {
+			entry[k] = v
+		}
+		result = append(result, entry)
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i]["transcation"].(int) > result[j]["transcation"].(int) // Sort in ascending order
+	})
+
+	// fmt.Printf("done %v\n", mm)
+
+	fmt.Printf("done ")
 
 }
