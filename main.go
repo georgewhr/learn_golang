@@ -14,11 +14,47 @@ type PriorityQueue = internal.PriorityQueue
 type Stack = internal.Stack
 type TreeNode = internal.TreeNode
 type TBHS = internal.TBHT
+type Test struct {
+	name string
+	size int
+}
 
 func main() {
+
+	ttt := []Test{}
+	ttt = append(ttt, Test{name: "As", size: 20})
+	ttt = append(ttt, Test{name: "John", size: 50})
+	ttt = append(ttt, Test{name: "Bs", size: 20})
+	ttt = append(ttt, Test{name: "Jason", size: 50})
+
+	sort.Slice(ttt, func(i, j int) bool {
+		if ttt[i].size == ttt[j].size {
+			return ttt[i].name < ttt[j].name
+		}
+		return ttt[i].size > ttt[j].size
+	})
+
 	fmt.Println("Hello, world.")
 
+	employee := internal.InitCompanyWorker()
+	employee.AddWorker("george", "J", "100")
+	employee.AddWorker("vera", "J", "150")
+	employee.Register("george", "10")
+	employee.Register("george", "12")
+	employee.Register("george", "11")
+	employee.CalculateSalary("george", 10, 14)
+	employee.TopN("10", "J")
+
 	cloudStorage := internal.Init()
+	inMemDb := internal.InitInDB()
+
+	inMemDb.SetAtWithTTL("A", "T", "G", "3", "5")
+	inMemDb.SetAtWithTTL("A", "B", "C", "4", "14")
+	inMemDb.SetAtWithTTL("A", "D", "E", "5", "15")
+	inMemDb.Backup("4")
+	inMemDb.Backup("12")
+	inMemDb.Restore("100", "12")
+
 	// cloudStorage.Add("/root/file1.mp3", "10")
 	// cloudStorage.Add("/root/file2.mp3", "56")
 	// cloudStorage.Add("/dir100/file100.mp3", "1")
@@ -37,6 +73,18 @@ func main() {
 	cloudStorage.AddFileBy("george", "/dir101/file1001.mp3", "50")
 	cloudStorage.Copy("/dir101/file1001.mp3", "/dir100/copy1/file100.mp3")
 	cloudStorage.UpdateCapacity("george", "50")
+
+	bank := internal.InitBankingSystem()
+	bank.CreateAccount(100, "george")
+	bank.CreateAccount(120, "vera")
+	bank.Deposit(130, "george", 100)
+	bank.Deposit(130, "vera", 200)
+	bank.Pay("200", "george", 20)
+	bank.Pay("201", "vera", 15)
+	bank.Pay("202", "george", 40)
+	bank.Transfer(300, "george", "vera", 5)
+	bank.Withdraw(400, "george", 10)
+	bank.GetPaymentStatus(86500000, "george", "george_0")
 
 	// cloudStorage.AddFileBy("george", "/dir102/file1001.mp3", "50")
 

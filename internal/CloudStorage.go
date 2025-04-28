@@ -326,3 +326,27 @@ func (this *CloudStorage) UpdateCapacity(userId string, capacity string) string 
 	return convertIntStr(cutIndex + 1)
 
 }
+
+func (this *CloudStorage) CompressFile(userId string, file string) string {
+
+	//check if file exist, if user exist, if userId owns the file
+
+	// newFileName := file + ".COMPRESSED"
+
+	// this.cs[newFileName] = &File{path:newFileName, size: }
+	delete(this.cs, file)
+	return ""
+
+}
+
+func (this *CloudStorage) DeCompressFile(userId string, file string) string {
+
+	//check if file exist, if user exist, if userId owns the file
+
+	// newFileName := file + ".COMPRESSED"
+
+	// this.cs[newFileName] = &File{path:newFileName, size: }
+	delete(this.cs, file)
+	return ""
+
+}
