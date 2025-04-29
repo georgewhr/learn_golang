@@ -40,9 +40,18 @@ func main() {
 	employee.AddWorker("george", "J", "100")
 	employee.AddWorker("vera", "J", "150")
 	employee.Register("george", "10")
-	employee.Register("george", "12")
 	employee.Register("george", "11")
-	employee.CalculateSalary("george", 10, 14)
+	employee.Register("george", "12")
+
+	employee.Promote("george", "S", "200", "15")
+
+	employee.Register("george", "13")
+	employee.Register("george", "14")
+	employee.Register("george", "16")
+	employee.Register("george", "17")
+	employee.Register("george", "18")
+
+	employee.CalculateSalary("george", 10, 20)
 	employee.TopN("10", "J")
 
 	cloudStorage := internal.Init()
@@ -55,24 +64,34 @@ func main() {
 	inMemDb.Backup("12")
 	inMemDb.Restore("100", "12")
 
-	// cloudStorage.Add("/root/file1.mp3", "10")
 	// cloudStorage.Add("/root/file2.mp3", "56")
-	// cloudStorage.Add("/dir100/file100.mp3", "1")
+	// cloudStorage.Add("/root/file1.mp3", "20")
+	cloudStorage.Add("/root/file1.mp3", "10")
+	cloudStorage.Add("/root/file1.mp3", "40")
+	cloudStorage.Add("/root/file1.mp3", "50")
+	cloudStorage.Add("/root/file1.mp3", "60")
+
+	cloudStorage.Add("/root/file2.mp3", "20")
+	cloudStorage.Add("/root/file2.mp3", "220")
+	cloudStorage.Add("/root/file2.mp3", "400")
+	cloudStorage.Add("/root/file2.mp3", "600")
+	// cloudStorage.DeleteVersion("/root/file1.mp3", "0")
+	cloudStorage.TopN("/root/file", "2")
 	// cloudStorage.Copy("/dir100/file100.mp3", "/dir100/copy/file100.mp3")
 	// cloudStorage.Add("/dir/file2.txt", "20")
 	// cloudStorage.Add("/dir3/file3.txt", "50")
 
 	// cloudStorage.FindFile("/root", ".mp3")
-	cloudStorage.AddUsers("george", "100")
-	cloudStorage.AddFileBy("george", "/dir/file2.txt", "40")
-	cloudStorage.Copy("/dir/file2.txt", "/dircopy/file2.tx")
-	cloudStorage.GetFileSzie("/dir/file2.txt")
+	// cloudStorage.AddUsers("george", "100")
+	// cloudStorage.AddFileBy("george", "/dir/file2.txt", "40")
+	// cloudStorage.Copy("/dir/file2.txt", "/dircopy/file2.tx")
+	// cloudStorage.GetFileSzie("/dir/file2.txt")
 
-	// cloudStorage.AddUsers("vera", "200")
-	cloudStorage.AddFileBy("george", "/dir101/file100.mp3", "40")
-	cloudStorage.AddFileBy("george", "/dir101/file1001.mp3", "50")
-	cloudStorage.Copy("/dir101/file1001.mp3", "/dir100/copy1/file100.mp3")
-	cloudStorage.UpdateCapacity("george", "50")
+	// // cloudStorage.AddUsers("vera", "200")
+	// cloudStorage.AddFileBy("george", "/dir101/file100.mp3", "40")
+	// cloudStorage.AddFileBy("george", "/dir101/file1001.mp3", "50")
+	// cloudStorage.Copy("/dir101/file1001.mp3", "/dir100/copy1/file100.mp3")
+	// cloudStorage.UpdateCapacity("george", "50")
 
 	bank := internal.InitBankingSystem()
 	bank.CreateAccount(100, "george")
@@ -5365,4 +5384,314 @@ func basicImplementations() {
 
 	fmt.Printf("done ")
 
+}
+
+/*
+Input: intervals = [[1,3],[2,5],[6,7]]
+Input: intervals = [[1,3],[1,2],[6,7]]
+
+Output: [[1,5],[6,7]]
+
+1. sort ascending order based on 1st element of array.
+2. i =0, j = 1
+
+	for j < len(intervals) {
+		if intervals[j][0] <= intervals[i][1] {
+			ret.add(merge(intervals[j][0], intervals[i][1]))
+			j++
+
+		} else {
+			ret.add(merge(intervals[j], intervals[i]))
+			i = j
+			j++
+		}
+	}
+*/
+func MergeInterval(intervals [][]int) [][]int {
+
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][0] > intervals[j][0]
+	})
+
+	ret := make([][]int, 0)
+	lastend := intervals[0][1]
+
+	i, j := 0, 1
+
+	for j < len(intervals) {
+		if intervals[j][0] <= intervals[j][0] {
+			lastend = findMax(intervals[j][1], lastend)
+		} else {
+			ret = append(ret, []int{intervals[i][0], lastend})
+			i = j
+		}
+		j++
+
+	}
+
+	ret = append(ret, intervals[i])
+	return ret
+
+}
+
+func MaxDepthTree(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+
+	left := MaxDepthTree(root.Left) + 1
+	right := MaxDepthTree(root.Left) + 1
+
+	max := findMax(left, right)
+	return max
+
+}
+
+func findDiameter(root *TreeNode) int {
+
+	res := 0
+
+	var dfs func(root *TreeNode) int
+
+	dfs = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+
+		left := dfs(root.Left)
+		right := dfs(root.Right)
+
+		res = findMax(res, left+right)
+
+		return findMax(left, right) + 1
+
+	}
+
+	dfs(root)
+
+	return res
+
+}
+
+func checkIfBalacnedTree(root *TreeNode) bool {
+	var traverse func(root *TreeNode) int
+	res := true
+	traverse = func(root *TreeNode) int {
+
+		if root == nil {
+			return 0
+		}
+
+		left := traverse(root.Left) + 1
+		right := traverse(root.Right) + 1
+
+		temp := absolute(left, right)
+
+		if temp > 1 {
+			res = false
+		}
+		return findMax(left, right)
+
+	}
+
+	traverse(root)
+	return res
+
+}
+
+func absolute(a int, b int) int {
+	res := a - b
+	if res < 0 {
+		return -res
+	} else {
+		return res
+	}
+}
+
+/*
+edge case
+
+	if p == nil && q == nil {
+		return true
+	}
+
+	if q == nil || p == nil {
+		return false
+	}
+
+	if p.val != q.val {
+		return false
+	}
+
+left = sameTree(p.left, q.left)
+right = sameTree(p.right, q.right)
+
+return left && right
+*/
+func sameTree(p *TreeNode, q *TreeNode) bool {
+
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil || q == nil {
+		return false
+	}
+
+	if p.Val != q.Val {
+		return false
+	}
+
+	return sameTree(p.Left, q.Left) && sameTree(p.Right, q.Right)
+
+}
+
+func subTreeOfAnotherTree2(root *TreeNode, subroot *TreeNode) bool {
+
+	if root == nil && subroot == nil {
+		return true
+	}
+
+	if root == nil || subroot == nil {
+		return false
+	}
+
+	temp := false
+	if root.Val == subroot.Val {
+		temp = subTreeOfAnotherTree2(root.Left, subroot.Left) && subTreeOfAnotherTree2(root.Right, subroot.Right)
+	}
+	left := subTreeOfAnotherTree2(root.Left, subroot)
+	right := subTreeOfAnotherTree2(root.Right, subroot)
+
+	return left || right || temp
+
+}
+
+/*
+Post order
+edge case:
+if root == nil {
+	return nil
+}
+
+if root == p || root == p{
+	return root
+}
+
+left:= dfs(root.left)
+right:= dfs(root.left
+
+if left !=nil && right != nil{
+	return root
+}
+
+if left !=nil{
+	return left
+}
+
+if right !=nil{
+	return left
+}
+
+return
+
+
+*/
+
+func lowestCommonAncestor2(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if root == p || root == q {
+		return root
+	}
+	left := lowestCommonAncestor2(root.Left, p, q)
+	right := lowestCommonAncestor2(root.Right, p, q)
+
+	if left != nil && right != nil {
+		return root
+	}
+
+	if left != nil {
+		return left
+	}
+
+	if right != nil {
+		return left
+	}
+	return nil
+}
+
+/*
+ */
+func insertIntoBST(root *TreeNode, val int) *TreeNode {
+	if root == nil {
+		return &TreeNode{Val: val, Left: nil, Right: nil}
+	}
+
+	if val < root.Val {
+		root.Left = insertIntoBST(root.Left, val)
+
+	} else {
+		root.Right = insertIntoBST(root.Right, val)
+	}
+
+	return root
+
+}
+
+func deleteNode(root *TreeNode, key int) *TreeNode {
+
+	if root == nil {
+		return root
+	}
+
+	if key < root.Val {
+		root.Left = deleteNode(root.Left, key)
+	} else if key > root.Val {
+		root.Right = deleteNode(root.Right, key)
+	} else {
+		/*
+			1. if the node has 2 childen
+			2. if the node has only left child
+				return left child
+			3. if the node has only rihgt child
+				return right child
+			4. if the node has no child
+				do nothing, return nil
+
+		*/
+		if root.Left == nil {
+			return root.Right
+
+		} else if root.Right == nil {
+			return root.Left
+
+		} else if root.Left == nil && root.Right == nil {
+			return nil
+		} else {
+			//find the minimum number from right subtree and replace with it
+			root.Val = findMinNumber(root.Right)
+			root.Right = deleteNode(root.Right, root.Val)
+
+		}
+	}
+	return root
+
+}
+
+func findMinNumber(node *TreeNode) int {
+
+	minNum := node.Val
+
+	for node != nil {
+		if node.Val < minNum {
+			minNum = node.Val
+		}
+		node = node.Left
+	}
+
+	return minNum
 }

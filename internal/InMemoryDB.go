@@ -28,21 +28,21 @@ type KeySet struct {
 }
 
 type InMemoryDB struct {
-	db       map[KeySet][]*Val
-	backUpDB map[string]map[KeySet][]*Val
+	db       map[KeySet]*Val
+	backUpDB map[string]map[KeySet]*Val
 }
 
 func InitInDB() *InMemoryDB {
-	return &InMemoryDB{db: make(map[KeySet][]*Val), backUpDB: make(map[string]map[KeySet][]*Val)}
+	return &InMemoryDB{db: make(map[KeySet]*Val), backUpDB: make(map[string]map[KeySet]*Val)}
 }
 
 func (this *InMemoryDB) Set(key string, field string, val string) string {
 	k := KeySet{key: key, field: field}
 
 	if _, ok := this.db[k]; !ok {
-		this.db[k] = append(this.db[k], &Val{value: val})
+		this.db[k] = &Val{value: val}
 	} else {
-		this.db[k][0].value = val
+		this.db[k].value = val
 	}
 
 	return ""
@@ -53,7 +53,7 @@ func (this *InMemoryDB) Get(key string, field string) string {
 
 	k := KeySet{key: key, field: field}
 	if _, ok := this.db[k]; ok {
-		return this.db[k][0].value
+		return this.db[k].value
 	} else {
 		return ""
 	}
@@ -77,9 +77,9 @@ func (this *InMemoryDB) Scan(key string) string {
 	for k, val := range this.db {
 		// ksplit := strings.Split(k, "_")
 		if k.key == key {
-			for _, item := range val {
-				res = res + fmt.Sprintf("%s(%s), ", k.field, item.value)
-			}
+			// for _, item := range val {
+			res = res + fmt.Sprintf("%s(%s), ", k.field, val.value)
+			// }
 
 		}
 	}
@@ -91,9 +91,9 @@ func (this *InMemoryDB) ScanPrefix(key string, field string) string {
 
 	res := ""
 	for k, val := range this.db {
-		if key == k.key && field == k.field {
-			res = res + fmt.Sprintf("%s(%s), ", k.key, val[0].value)
-		}
+		// if key == k.key && field == k.field {
+		res = res + fmt.Sprintf("%s(%s), ", k.key, val.value)
+		// }
 	}
 
 	return res
@@ -104,16 +104,25 @@ func (this *InMemoryDB) SetAt(key string, field string, val string, time string)
 
 	// this.Set(key, field, val)
 	k := KeySet{key: key, field: field}
-	this.db[k] = append(this.db[k], &Val{value: val, timeStamp: convertStrInt(time)})
+
+	if _, ok := this.db[k]; !ok {
+		this.Set(key, field, val)
+	}
+
+	this.db[k].timeStamp = convertStrInt(time)
+
 	return ""
 }
 
 func (this *InMemoryDB) SetAtWithTTL(key string, field string, val string, time string, ttl string) string {
 
 	k := KeySet{key: key, field: field}
-	this.db[k] = append(this.db[k], &Val{value: val,
-		timeStamp: convertStrInt(time),
-		ttl:       convertStrInt(ttl)})
+	if _, ok := this.db[k]; !ok {
+		this.Set(key, field, val)
+	}
+
+	this.db[k].timeStamp = convertStrInt(time)
+	this.db[k].ttl = convertStrInt(ttl) + convertStrInt(time)
 	return ""
 }
 
@@ -125,12 +134,10 @@ func (this *InMemoryDB) DeleteAt(key string, field string, time string) bool {
 		return false
 	}
 
-	for i, val := range this.db[k] {
-		if val.ttl > convertStrInt(time) && val.timeStamp == convertStrInt(time) {
-			this.db[k] = append(this.db[k][:i], this.db[k][:i+1]...)
-			return true
-		}
-
+	if this.db[k].ttl < convertStrInt(time) {
+		delete(this.db, k)
+	} else {
+		return false
 	}
 
 	return false
@@ -145,11 +152,9 @@ func (this *InMemoryDB) GetAt(key string, field string, time string) string {
 	if _, ok := this.db[k]; !ok {
 		return ""
 	}
-	for _, val := range this.db[k] {
-		if val.ttl > convertStrInt(time) && val.timeStamp == convertStrInt(time) {
-			res = res + fmt.Sprintf("%s(%s), ", k.field, val.value)
-		}
 
+	if this.db[k].ttl < convertStrInt(time) {
+		return this.db[k].value
 	}
 
 	return res
@@ -173,21 +178,20 @@ func (this *InMemoryDB) GetAt(key string, field string, time string) string {
 
 func (this *InMemoryDB) Backup(time string) string {
 
-	// this.backUpDB = make(map[string]map[KeySet]*Val)
 	res := 0
-	this.backUpDB[time] = make(map[KeySet][]*Val)
+	this.backUpDB[time] = make(map[KeySet]*Val)
 	for k, v := range this.db {
 
-		for _, item := range v {
-			if item.ttl > convertStrInt(time) {
+		// for _, item := range v {
+		if v.ttl > convertStrInt(time) {
 
-				newItem := &Val{value: item.value, ttl: item.ttl, timeStamp: item.timeStamp}
-				newItem.ttl = newItem.ttl - convertStrInt(time) + 1
-				this.backUpDB[time][k] = make([]*Val, 0)
-				this.backUpDB[time][k] = append(this.backUpDB[time][k], newItem)
-				res++
-			}
+			newItem := &Val{value: v.value, ttl: v.ttl, timeStamp: v.timeStamp}
+			newItem.ttl = newItem.ttl - convertStrInt(time) + 1
+			this.backUpDB[time][k] = newItem
+			// this.backUpDB[time][k] = append(this.backUpDB[time][k], newItem)
+			res++
 		}
+		// }
 	}
 
 	return convertIntStr(res)
@@ -215,14 +219,12 @@ func (this *InMemoryDB) Restore(time string, timeToRestore string) string {
 		}
 	}
 
+	this.db = map[KeySet]*Val{}
+
 	tempDb := this.backUpDB[convertIntStr(latestBackupTime)]
-	this.db = tempDb
-	for k, _ := range this.db {
-
-		for index, _ := range this.db[k] {
-			this.db[k][index].ttl = this.db[k][index].ttl + convertStrInt(time)
-
-		}
+	// this.db = tempDb
+	for k, _ := range tempDb {
+		this.db[k] = &Val{}
 	}
 
 	return res

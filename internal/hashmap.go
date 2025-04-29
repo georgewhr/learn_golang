@@ -9,9 +9,21 @@ Put(k, v), null or previous value
 Get(k), null or non-nil value
 hash()
 resize()
+
+concurrent hashmap
+
+e.g, size of 4 backing array, put 4/n sections, n = 2,  each section has a lock,
+0,1  2, 3, construct a map where key is the actual hashkey, value is the sections.
+hashkey = hash() % len(array), hashkey % (len(arr)/n)
+
+
+
+
 */
 
 package internal
+
+import "sync"
 
 const TABLE_INIT_CAP = 50
 const THREAD_SHOLD = 0.7
@@ -23,9 +35,10 @@ type HashNode struct {
 }
 
 type HashMap struct {
-	BackingArr []*HashNode
-	tableSize  int
-	tableCap   int
+	BackingArr  []*HashNode
+	tableSize   int
+	tableCap    int
+	sectionLock []sync.Mutex
 }
 
 func InitHashMap() *HashMap {

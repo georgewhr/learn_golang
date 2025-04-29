@@ -1,5 +1,7 @@
 package internal
 
+import "sync"
+
 /*
 Implement a LRU cache
 Requirements:
@@ -27,6 +29,7 @@ type LRUCache struct {
 	backingMap map[int]*ListNode
 	double     *ListNode
 	doubleTail *ListNode
+	globalLock *sync.Mutex
 }
 
 func Constructor(capacity int) *LRUCache {
@@ -34,6 +37,7 @@ func Constructor(capacity int) *LRUCache {
 		cap:        capacity,
 		size:       0,
 		backingMap: make(map[int]*ListNode),
+		globalLock: &sync.Mutex{},
 	}
 }
 
@@ -54,6 +58,8 @@ if key present {
 */
 
 func (this *LRUCache) put(key int, value int) int {
+	this.globalLock.Lock()
+	defer this.globalLock.Unlock()
 	if _, ok := this.backingMap[key]; ok {
 		oldNode := this.backingMap[key]
 		this.removeNode(oldNode)

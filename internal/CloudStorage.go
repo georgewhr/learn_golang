@@ -139,10 +139,18 @@ returns ""; "user3" doesn't exist
 */
 
 type File struct {
-	path        string
-	owner       []string
-	createdTime string
-	size        int
+	path              string
+	owner             []string
+	createdTime       string
+	size              int
+	version           string
+	latestVersion     int
+	otherVersionFiles []*File
+}
+
+type FileKey struct {
+	path    string
+	version string
 }
 
 type User struct {
@@ -152,12 +160,13 @@ type User struct {
 	usedSize   int
 }
 type CloudStorage struct {
-	cs    map[string]*File
+	cs    map[FileKey]*File
+	trash map[FileKey]*File
 	users map[string]*User
 }
 
 func Init() *CloudStorage {
-	return &CloudStorage{cs: make(map[string]*File),
+	return &CloudStorage{cs: make(map[FileKey]*File), trash: make(map[FileKey]*File),
 		users: make(map[string]*User)}
 }
 
@@ -172,37 +181,138 @@ func convertIntStr(num int) string {
 }
 
 func (this *CloudStorage) Add(filePath string, size string) bool {
-	if _, ok := this.cs[filePath]; !ok {
-		file := File{path: filePath, size: convertStrInt(size)}
-		this.cs[filePath] = &file
+	k := FileKey{path: filePath}
+	if _, ok := this.cs[k]; !ok {
+		file := File{path: filePath, size: convertStrInt(size), latestVersion: 0}
+		this.cs[k] = &file
 		// this.cs[filePath]["size"] = size
 		// this.cs[filePath]["path"] = filePath
 		return true
 	} else {
-		return false
+
+		if this.cs[k].otherVersionFiles == nil {
+			this.cs[k].otherVersionFiles = make([]*File, 0)
+		}
+		this.cs[k].latestVersion++
+		file := File{path: filePath, size: convertStrInt(size), latestVersion: this.cs[k].latestVersion, version: convertIntStr(this.cs[k].latestVersion)}
+
+		this.cs[k].otherVersionFiles = append(this.cs[k].otherVersionFiles, &file)
+		// this.cs[k].latestVersion = convertStrInt(this.cs[k].otherVersionFiles[len(this.cs[k].otherVersionFiles)-1].version)
+		// version := this.cs[k].latestVersion + 1
+		// this.cs[k].latestVersion++
+		// file := File{path: filePath, size: convertStrInt(size), latestVersion: version}
+		// this.cs[k] = &file
+
+		return true
 	}
 }
 
+func (this *CloudStorage) DeleteVersion(filePath string, version string) string {
+
+	k := FileKey{path: filePath}
+
+	if _, ok := this.cs[k]; !ok {
+		return ""
+	}
+
+	if version == "0" {
+		temp := &File{path: this.cs[k].otherVersionFiles[0].path, size: this.cs[k].otherVersionFiles[0].size, version: "0"}
+		temp.otherVersionFiles = make([]*File, 0)
+
+		for _, entry := range this.cs[k].otherVersionFiles[1:] {
+			temp1 := &File{path: entry.path, size: entry.size, version: convertIntStr(convertStrInt(entry.version) - 1)}
+			temp.otherVersionFiles = append(temp.otherVersionFiles, temp1)
+		}
+
+		delete(this.cs, k)
+
+		this.cs[k] = temp
+		this.cs[k].latestVersion = this.cs[k].otherVersionFiles[len(this.cs[k].otherVersionFiles)-1].latestVersion
+
+	} else {
+
+		for index, entry := range this.cs[k].otherVersionFiles {
+
+			if entry.version == version {
+				rtSize := entry.size
+				this.cs[k].otherVersionFiles = append(this.cs[k].otherVersionFiles[:index], this.cs[k].otherVersionFiles[index+1:]...)
+
+				for i := index; i < len(this.cs[k].otherVersionFiles); i++ {
+					this.cs[k].otherVersionFiles[i].version = convertIntStr(convertStrInt(this.cs[k].otherVersionFiles[i].version) - 1)
+				}
+				this.cs[k].latestVersion = convertStrInt(this.cs[k].otherVersionFiles[len(this.cs[k].otherVersionFiles)-1].version)
+				return convertIntStr(rtSize)
+
+			}
+
+		}
+
+	}
+
+	//  := this.cs[k].latestVersion + 1
+	// this.cs[k].latestVersion++
+	// file := File{path: filePath, size: convertStrInt(size), latestVersion: version}
+	// this.cs[k] = &file
+
+	return "false"
+
+}
+
+func (this *CloudStorage) TopN(filePrefix string, n string) bool {
+
+	temp := make([]*File, 0)
+	for k, _ := range this.cs {
+		var f *File
+		if strings.HasPrefix(k.path, filePrefix) {
+			if this.cs[k].latestVersion == 0 {
+				f = &File{path: this.cs[k].path, size: this.cs[k].size}
+			} else {
+				for _, val := range this.cs[k].otherVersionFiles {
+					if convertStrInt(val.version) == this.cs[k].latestVersion {
+						f = &File{path: val.path, size: val.size}
+					}
+				}
+
+			}
+
+			temp = append(temp, f)
+
+		}
+	}
+
+	sort.Slice(temp, func(i, j int) bool {
+		if temp[i].size == temp[j].size {
+			return temp[i].path < temp[j].path
+		}
+		return temp[i].size > temp[j].size
+	})
+
+	return true
+
+}
+
 func (this *CloudStorage) Copy(sourcePath string, targetPath string) bool {
-	if _, ok := this.cs[targetPath]; ok {
+	tk := FileKey{path: targetPath}
+	k := FileKey{path: sourcePath}
+	if _, ok := this.cs[tk]; ok {
 		return false
 	}
 
-	if _, ok := this.cs[sourcePath]; !ok {
+	if _, ok := this.cs[k]; !ok {
 		return false
 	}
 
-	contains := strings.Contains(sourcePath, ".")
+	contains := strings.Contains(k.path, ".")
 	if !contains {
 		return false
 	}
 
-	original := this.cs[sourcePath]
-	this.cs[targetPath] = &File{path: targetPath, owner: append([]string(nil), original.owner...), size: original.size}
+	original := this.cs[k]
+	this.cs[tk] = &File{path: targetPath, owner: append([]string(nil), original.owner...), size: original.size}
 	if original.owner != nil {
 		for _, user := range original.owner {
 			this.users[user].ownedFiles = append(this.users[user].ownedFiles, targetPath)
-			this.users[user].usedSize += this.cs[targetPath].size
+			this.users[user].usedSize += this.cs[tk].size
 		}
 	}
 	// this.cs[targetPath].path = targetPath
@@ -213,18 +323,19 @@ func (this *CloudStorage) Copy(sourcePath string, targetPath string) bool {
 
 func (this *CloudStorage) GetFileSzie(sourcePath string) string {
 
-	if _, ok := this.cs[sourcePath]; !ok {
+	k := FileKey{path: sourcePath}
+	if _, ok := this.cs[k]; !ok {
 		return ""
 	} else {
-		return convertIntStr(this.cs[sourcePath].size)
+		return convertIntStr(this.cs[k].size)
 	}
 }
 
 func (this *CloudStorage) FindFile(prefix string, surffix string) string {
 	var fileList []*File
 	for k, val := range this.cs {
-		ifPrefix := strings.HasPrefix(k, prefix)
-		ifSurfix := strings.HasSuffix(k, surffix)
+		ifPrefix := strings.HasPrefix(k.path, prefix)
+		ifSurfix := strings.HasSuffix(k.path, surffix)
 		if ifPrefix && ifSurfix {
 			// temp := make(map[string]interface{})
 			// temp[k] = val
@@ -258,12 +369,14 @@ func (this *CloudStorage) AddUsers(userId string, capacity string) bool {
 }
 
 func (this *CloudStorage) AddFileBy(userId string, file string, filesize string) bool {
+
+	k := FileKey{path: file}
 	if _, ok := this.users[userId]; !ok {
 		return false
 	}
 
 	var addresult bool
-	if _, ok := this.cs[file]; !ok {
+	if _, ok := this.cs[k]; !ok {
 		addresult = this.Add(file, filesize)
 	}
 
@@ -278,7 +391,7 @@ func (this *CloudStorage) AddFileBy(userId string, file string, filesize string)
 	if usedSize > this.users[userId].capacity {
 		return false
 	}
-	this.cs[file].owner = append(this.cs[file].owner, userId)
+	this.cs[k].owner = append(this.cs[k].owner, userId)
 	this.users[userId].ownedFiles = append(this.users[userId].ownedFiles, file)
 	this.users[userId].usedSize = usedSize
 	return true
@@ -295,7 +408,8 @@ func (this *CloudStorage) UpdateCapacity(userId string, capacity string) string 
 	SortFiles := []*File{}
 
 	for _, val := range userFileList {
-		SortFiles = append(SortFiles, this.cs[val])
+		k := FileKey{path: val}
+		SortFiles = append(SortFiles, this.cs[k])
 	}
 
 	sort.Slice(SortFiles, func(i, j int) bool {
@@ -317,7 +431,8 @@ func (this *CloudStorage) UpdateCapacity(userId string, capacity string) string 
 	newUsedSize := 0
 	for _, val := range SortFiles[cutIndex+1:] {
 		this.users[userId].ownedFiles = append(this.users[userId].ownedFiles, val.path)
-		newUsedSize += this.cs[val.path].size
+		k := FileKey{path: val.path}
+		newUsedSize += this.cs[k].size
 	}
 
 	this.users[userId].usedSize = newUsedSize
@@ -334,7 +449,8 @@ func (this *CloudStorage) CompressFile(userId string, file string) string {
 	// newFileName := file + ".COMPRESSED"
 
 	// this.cs[newFileName] = &File{path:newFileName, size: }
-	delete(this.cs, file)
+	k := FileKey{path: file}
+	delete(this.cs, k)
 	return ""
 
 }
@@ -346,7 +462,8 @@ func (this *CloudStorage) DeCompressFile(userId string, file string) string {
 	// newFileName := file + ".COMPRESSED"
 
 	// this.cs[newFileName] = &File{path:newFileName, size: }
-	delete(this.cs, file)
+	k := FileKey{path: file}
+	delete(this.cs, k)
 	return ""
 
 }

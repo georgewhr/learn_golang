@@ -55,11 +55,11 @@ func (this *CompanyWorker) Register(workerId string, time string) bool {
 		this.worker[workerId].currentBadgeIn = time
 		this.worker[workerId].currentStatus = 1
 
-		if this.worker[workerId].promotePosition == "PENDING" && convertStrInt(time) >= convertStrInt(this.worker[workerId].promoteStartTime) {
-			this.worker[workerId].promotePosition = "DONE"
-			this.worker[workerId].compensation = this.worker[workerId].promoteComp
-			this.worker[workerId].totalTime = 0
-		}
+		// if this.worker[workerId].promotePosition == "PENDING" && convertStrInt(time) >= convertStrInt(this.worker[workerId].promoteStartTime) {
+		// 	this.worker[workerId].promotePosition = "DONE"
+		// 	this.worker[workerId].compensation = this.worker[workerId].promoteComp
+		// 	this.worker[workerId].totalTime = 0
+		// }
 
 	} else if this.worker[workerId].currentStatus == 1 {
 		this.worker[workerId].currentBadgeOut = time
@@ -68,6 +68,13 @@ func (this *CompanyWorker) Register(workerId string, time string) bool {
 		newWorkTime := &WorkTime{badgeIn: this.worker[workerId].currentBadgeIn, badgeOut: this.worker[workerId].currentBadgeOut, pay: this.worker[workerId].compensation, position: this.worker[workerId].position}
 		this.worker[workerId].schedule = append(this.worker[workerId].schedule, newWorkTime)
 		this.worker[workerId].totalTime += convertStrInt(this.worker[workerId].currentBadgeOut) - convertStrInt(this.worker[workerId].currentBadgeIn)
+
+		if this.worker[workerId].promoteStatus == "PENDING" && convertStrInt(time) >= convertStrInt(this.worker[workerId].promoteStartTime) {
+			this.worker[workerId].position = this.worker[workerId].promotePosition
+			this.worker[workerId].compensation = this.worker[workerId].promoteComp
+			this.worker[workerId].totalTime = 0
+
+		}
 
 	}
 
@@ -125,6 +132,11 @@ func (this *CompanyWorker) Promote(workerId string, newPosition string, newComp 
 	if this.worker[workerId].promoteStatus == "PENDING" {
 		return false
 	}
+
+	this.worker[workerId].promoteStatus = "PENDING"
+	this.worker[workerId].promotePosition = newPosition
+	this.worker[workerId].promoteComp = newComp
+	this.worker[workerId].promoteStartTime = startTime
 
 	return true
 
