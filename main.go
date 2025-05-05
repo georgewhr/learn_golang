@@ -6411,3 +6411,41 @@ func wordLadder(wordList []string, beginWord string, endWord string) int {
 	return 0
 
 }
+
+/*
+Input: points = [[0,2],[2,0],[2,2]], k = 2
+
+Output: [[0,2],[2,0]]
+*/
+func kClosest(points [][]int, k int) {
+	temp := []float64{}
+
+	for _, val := range points {
+		a := float64(val[0])
+		b := float64(val[1])
+		temp = append(temp, math.Sqrt(a*a+b*b))
+	}
+
+	/*initt a max heap
+	for val in temp {
+		heap.add(val)
+		for len(heap) > k {
+			heap.Pop()
+		}
+	}
+
+
+	}
+
+	*/
+
+}
+
+/*
+Input: tasks = ["A","A","A","B","C"], n = 3
+
+Output: 9
+*/
+func leastInterval(tasks []byte, n int) int {
+
+}
