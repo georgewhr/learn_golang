@@ -28,7 +28,6 @@ type LRUCache struct {
 	cap        int
 	backingMap map[int]*ListNode
 	double     *ListNode
-	doubleTail *ListNode
 	globalLock *sync.Mutex
 }
 
@@ -101,20 +100,21 @@ func (this *LRUCache) addNode(val int) *ListNode {
 	newNode := &ListNode{Val: val, Next: nil}
 	if this.double == nil {
 		this.double = newNode
-		this.doubleTail = this.double
 	} else {
 		newNode.Next = this.double
 		this.double.Previous = newNode
-		newNode = this.double
+		this.double = newNode
 	}
 	return newNode
 }
 
 func (this *LRUCache) removeNode(node *ListNode) {
 	node.Previous.Next = node.Next
+	node.Next.Previous = node.Previous
+	// delete(this.backingMap, node.)
 }
 
-func (this *LRUCache) removeTail() {
-	this.doubleTail.Previous.Next = nil
-	this.doubleTail = this.doubleTail.Previous
-}
+// func (this *LRUCache) removeTail() {
+// 	this.doubleTail.Previous.Next = nil
+// 	this.doubleTail = this.doubleTail.Previous
+// }

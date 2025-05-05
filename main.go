@@ -6,6 +6,7 @@ import (
 	"george/internal"
 	"math"
 	"sort"
+	"strings"
 )
 
 type ListNode = internal.ListNode
@@ -19,7 +20,31 @@ type Test struct {
 	size int
 }
 
+type Human struct {
+	name string
+	age  *int
+}
+
+func test123(arr []int) {
+
+	arr = append(arr, 2)
+
+}
+
 func main() {
+
+	rotateArr([]int{1, 2, 3, 4}, 2)
+	testtest := make([]int, 10)
+	testtest = append(testtest, 2)
+
+	test1 := make([]*ListNode, 12)
+	// v := test1[2]
+	if test1[1] == nil {
+		fmt.Print(test1)
+	}
+
+	ag := []int{1, 2}
+	test123(ag)
 
 	ttt := []Test{}
 	ttt = append(ttt, Test{name: "As", size: 20})
@@ -60,6 +85,7 @@ func main() {
 	inMemDb.SetAtWithTTL("A", "T", "G", "3", "5")
 	inMemDb.SetAtWithTTL("A", "B", "C", "4", "14")
 	inMemDb.SetAtWithTTL("A", "D", "E", "5", "15")
+	inMemDb.Scan("A")
 	inMemDb.Backup("4")
 	inMemDb.Backup("12")
 	inMemDb.Restore("100", "12")
@@ -267,6 +293,7 @@ func main() {
 	// houseRober2([]int{1, 2, 3})
 	// maxProduct([]int{2, 3, -2, 4})
 	maxProduct([]int{-2, 0, -1})
+	wordLadder([]string{"hot", "dot", "dog", "lot", "log", "cog"}, "hit", "cog")
 
 }
 
@@ -5694,4 +5721,693 @@ func findMinNumber(node *TreeNode) int {
 	}
 
 	return minNum
+}
+
+func getConcatenatio2n(nums []int) []int {
+
+	n := len(nums)
+	ans := make([]int, 2*n)
+
+	for i, val := range nums {
+		ans[i] = val
+		ans[n+i] = val
+	}
+
+	return ans
+
+}
+
+func validAnagram2(s string, t string) bool {
+	if len(s) != len(t) {
+		return false
+	}
+
+	sMap, tMap := make(map[rune]int), make(map[rune]int)
+
+	for i, val := range s {
+		sMap[val]++
+		tMap[rune(t[i])]++
+	}
+
+	for k, v := range sMap {
+		if v != tMap[k] {
+			return false
+		}
+	}
+
+	return true
+
+}
+
+func twoSum2Asc(numbers []int, target int) []int {
+
+	sort.Slice(numbers, func(i, j int) bool {
+		return numbers[i] < numbers[j]
+	})
+
+	left, right := 0, len(numbers)-1
+
+	for left != right {
+		if numbers[left]+numbers[right] < target {
+			left++
+		} else if numbers[left]+numbers[right] > target {
+			right--
+
+		} else {
+			return []int{numbers[left], numbers[right]}
+		}
+
+	}
+	return nil
+
+}
+
+func twoSum2(nums []int, target int) []int {
+
+	myMap := make(map[int]int)
+
+	for i, val := range nums {
+		temp2 := target - val
+		if _, ok := myMap[temp2]; ok {
+			return []int{i, myMap[temp2]}
+		}
+		myMap[val] = i
+
+	}
+
+	return nil
+
+}
+
+/*
+
+Example 1:
+
+Input: strs = ["flower","flow","flight"]
+Output: "fl"
+
+*/
+
+func longestCommonPrefix2(strs []string) string {
+
+	res := ""
+	if len(strs) == 0 {
+		return res
+	}
+
+	shortLen := len(strs[0])
+
+	for _, val := range strs {
+		if len(val) < shortLen {
+			shortLen = len(val)
+		}
+	}
+
+	for i := 0; i < shortLen; i++ {
+
+		table := make(map[byte]int)
+		for _, val := range strs {
+			table[val[i]]++
+
+			if table[val[i]] == len(strs) {
+				res += string(val[i])
+				delete(table, val[i])
+			}
+
+			if len(table) > 1 {
+				return res
+			}
+		}
+
+	}
+
+	return res
+
+}
+
+func groupAnagram(strs []string) [][]string {
+	res := [][]string{}
+
+	table := make(map[[26]int][]string)
+
+	for _, str := range strs {
+		var key [26]int
+		for _, char := range str {
+			key[char-'a']++
+		}
+		if _, ok := table[key]; !ok {
+			table[key] = make([]string, 0)
+		}
+		table[key] = append(table[key], str)
+	}
+
+	for _, val := range table {
+
+		sameGroup := make([]string, 0)
+		for _, item := range val {
+			sameGroup = append(sameGroup, item)
+		}
+		res = append(res, sameGroup)
+	}
+
+	return res
+}
+
+/*
+
+Input: nums = [1,3,2,3], val = 3
+Output: 2, nums = [2,2,_,_]
+*/
+
+func removeElement2(nums []int, val int) int {
+
+	read, write := 0, 0
+	for read < len(nums) {
+
+		if nums[read] != val {
+			nums[write] = nums[read]
+			write++
+		}
+		read++
+
+	}
+
+	return write
+
+}
+
+/*
+Input: nums = [1,0,1,2]
+
+Output: [0,1,1,2]
+*/
+func sortColor2(nums []int) {
+	temp := [3]int{0, 1, 2}
+
+	for _, val := range nums {
+		temp[val]++
+	}
+
+	index := 0
+	for i := 0; i < 3; i++ {
+		for temp[i] > 0 {
+			nums[index] = i
+			temp[i]--
+			index++
+		}
+	}
+
+}
+
+/*
+ */
+func topKFrequentCountingSort(nums []int, k int) []int {
+
+	maxVal := nums[0]
+
+	for _, val := range nums {
+		if val > maxVal {
+			maxVal = val
+		}
+	}
+
+	countArr := make([]int, maxVal+1)
+
+	for _, val := range nums {
+		countArr[val]++
+	}
+
+	index := 0
+	for num, freq := range countArr {
+		temp := freq
+		for temp > 0 {
+			nums[index] = num
+			temp--
+			index++
+		}
+	}
+
+	return nums
+
+}
+
+/*
+Init a Minheap with the comparator
+enqueue
+*/
+// func topKFrequentMinHeap(nums []int, k int) []int {
+
+// 	count := make(map[int]int)
+
+// 	for _, val := range nums {
+// 		count[val]++
+// 	}
+
+// 	heap := priorityqueue.NewWith(func(a, b interface{}) int {
+// 		freqA := a.([2]int)[0]
+// 		freqB := b.([2]int)[0]
+// 		return utils.IntComparator(freqA, freqB)
+// 	})
+
+// }
+
+/*
+Input: nums = [2,20,4,10,3,4,5]
+
+Output: 4
+*/
+func longestConsecutive3(nums []int) int {
+	table := make(map[int]int)
+
+	for _, val := range nums {
+		table[val]++
+	}
+
+	max := 1
+	for _, val := range nums {
+		if _, ok := table[val-1]; !ok {
+
+			sequence := 1
+			for {
+				if _, ok := table[val+sequence]; ok {
+					sequence++
+					continue
+				}
+				max = findMax(max, sequence)
+				break
+			}
+
+		}
+	}
+
+	return max
+
+}
+
+func isPalindrome2(s string) bool {
+	start, end := 0, len(s)-1
+
+	for start != end {
+
+		if s[start] != s[end] {
+			return false
+		}
+		start++
+		end--
+	}
+
+	return true
+}
+
+/*
+
+
+
+ */
+
+func longestPalindrome2(s string) int {
+	res := 1
+
+	for i := 0; i < len(s); i++ {
+
+		l, r := i, i
+
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			res = findMax(res, l-r+1)
+			l--
+			r++
+		}
+
+	}
+
+	for i := 0; i < len(s); i++ {
+
+		l, r := i, i+1
+
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			res = findMax(res, l-r+1)
+			l--
+			r++
+		}
+
+	}
+
+	return res
+
+}
+
+func mergeAlternately(word1 string, word2 string) string {
+
+	w1Len := len(word1)
+	w2Len := len(word1)
+
+	i := 0
+	j := 0
+	var sb strings.Builder
+
+	for i < w1Len && j < w2Len {
+		sb.WriteByte(word1[i])
+		sb.WriteByte(word1[j])
+	}
+
+	return ""
+
+}
+
+/*
+Input: nums1 = [10,20,20,40,0,0], m = 4, nums2 = [1,2], n = 2
+
+10, 20, 30, 0, 0
+10,30
+Output: [1,2,10,20,20,40]
+
+i = m -1
+j = n -1
+nums1EndIndex = len(nums1) - 1
+
+	for i > =0 && j >=0 {
+		if nums1[i] > nums2[n]{
+			//copy nums1[i] to nums[nums1EndIndex]
+			nums1EndIndex --
+			i--
+		} else {
+			//copy nums2[j] to last index of nums1
+			nums1EndIndex --
+			j --
+		}
+
+}
+*/
+func mergedSortedArr(nums1 []int, m int, nums2 []int, n int) {
+
+}
+
+/*
+Input: nums = [1,1,2,3,4]
+Output: [1,2,3,4]
+
+i =0, j = 0
+
+	for j < len{
+		nums[i] = nums[j]
+		for j < len && nums[i] = nums[j] {
+			j++
+		}
+		i++
+	}
+*/
+func removeDuplicatesSorted(nums []int) {
+
+}
+
+/*
+Input: nums = [-1,0,1,2,-1,-4]
+
+	-4, -1, -1 , 0, 1, 2
+
+	x + y + z = 0
+
+Output: [[-1,-1,2],[-1,0,1]]
+
+this problem is target is zero, so if the index number is greater than 0, then it's impossible to have
+sum equal to zero
+*/
+func threeSum2Sort(nums []int) [][]int {
+	if len(nums) == 0 {
+		return nil
+	}
+
+	res := make([][]int, 0)
+
+	sort.Slice(nums, func(i, j int) bool {
+		return nums[i] < nums[j]
+	})
+
+	for i := 0; i < len(nums); i++ {
+		//Check if number is greater than 0
+		if nums[i] > 0 {
+			break
+		}
+
+		//skip same number
+		if i > 0 && nums[i]-1 == nums[i] {
+			continue
+		}
+
+		left, right := i+1, len(nums)-1
+
+		for left != right {
+			if nums[i]+nums[left]+nums[right] < 0 {
+				left++
+			} else if nums[i]+nums[left]+nums[right] > 0 {
+				right--
+
+			} else {
+				res = append(res, []int{i, left, right})
+			}
+		}
+
+	}
+	return res
+}
+
+/*
+Rotate arr
+
+Input: nums = [1,2,3,4], k = 2, 3 4 1 2
+Input: nums = [1,2,3,4], k = 3, 2 3 4 1
+
+swap, index, (index + 2) % size
+*/
+func rotateArr(nums []int, k int) {
+	newArr := make([]int, len(nums))
+
+	for i, _ := range nums {
+		newArr[(i+k)%len(nums)] = nums[i]
+	}
+	nums = newArr
+	copy(nums, newArr)
+
+	fmt.Print(newArr)
+
+}
+
+/*
+Input: prices = [10,1,5,6,7,1]
+1. have a variable to store the max value
+2. use 2 pointers to find the max value
+
+
+
+
+Output: 6
+*/
+
+func maxProfit2(prices []int) int {
+	max := math.MinInt16
+
+	i, j := 0, 1
+
+	for j < len(prices) {
+
+		// has profit
+		if prices[j]-prices[i] > 0 {
+			max = findMax(max, prices[j]-prices[i])
+		} else {
+			i = j
+		}
+		j++
+
+	}
+
+	return max
+}
+
+/*
+
+fixed window problem
+map[rune]int
+
+map s1 to map
+
+Input: s1 = "abc", s2 = "lecabee"
+
+Output: true
+r = 0
+l = 0, r = len(s1) -1
+for r<len {
+
+	copy map to a new map
+
+	temp = 0
+	for i = l, i < len {
+		if nums[i] in copymap {
+			copymap[nums[i]--
+		} else {
+			break
+		}
+
+		if copymap[nums[i]] == 0 {
+			delete
+		}
+	}
+
+	if copymap len is zero, return true
+	r ++
+
+
+}
+
+
+*/
+
+func checkInclusion2(s1 string, s2 string) bool {
+
+	l, r := 0, len(s1)-1
+
+	table := make(map[rune]int)
+	for _, val := range s2 {
+		table[val]++
+	}
+
+	for r < len(s2) {
+
+		newTable := make(map[rune]int, len(table))
+
+		for k, val := range table {
+			newTable[k] = val
+		}
+		for i := l; i <= r; i++ {
+
+			if _, ok := newTable[rune(s2[i])]; ok {
+				newTable[rune(s2[i])]--
+
+				if newTable[rune(s2[i])] == 0 {
+					delete(newTable, rune(s2[i]))
+				}
+			} else {
+				break
+			}
+
+		}
+
+		if len(newTable) == 0 {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func lengthOfLongestSubstring3(s string) int {
+	table := make(map[rune]int)
+
+	i, j, max := 0, 0, 1
+
+	for j < len(s) {
+
+		if _, ok := table[rune(s[j])]; ok {
+			i++
+
+		} else {
+			table[rune(s[j])]++
+			max = findMax(j-i, max)
+			j++
+
+		}
+	}
+
+	return 0
+
+}
+
+/*
+A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+Every adjacent pair of words differs by a single letter.
+Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+sk == endWord
+Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+
+Example 1:
+
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+Output: 5
+Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog" -> cog", which is 5 words long.
+
+thoughts:
+1. beginword not ncessaryily in the word list, but endWord will.
+2. need function to check if word minum letter is in the word list
+
+# BSF
+
+res = 1
+vistedMap
+q.add(begineWord)
+
+	for len(q) != 0 {
+		qlen = len(q)
+
+
+		for i:=0i<qlen;i++{
+			parent = q.pop
+			if parent == endword {
+				return res
+			}
+			for item in wordList{
+				if checkIfRemoveLetterWordInList(parent, item) && !vistedMap(item) {
+					q.add(item)
+					vistedMap[item] = true
+				}
+
+			}
+		}
+	}
+*/
+func wordLadder(wordList []string, beginWord string, endWord string) int {
+	// vistedWord := make(map[string]int)
+	worddListMap := make(map[string]int)
+	res := 0
+
+	for _, val := range wordList {
+		worddListMap[val]++
+	}
+
+	q := []string{}
+
+	q = append(q, beginWord)
+
+	for len(q) != 0 {
+		qLen := len(q)
+		res++
+		for i := 0; i < qLen; i++ {
+			parent := q[0]
+			q = q[1:]
+
+			if parent == endWord {
+				return res
+
+			}
+
+			for char := 'a'; char <= 'z'; char++ {
+				for i := 0; i < len(parent); i++ {
+					if char == rune(parent[i]) {
+						continue
+					}
+					newStr := parent[:i] + string(char) + parent[i+1:]
+
+					if _, ok := worddListMap[newStr]; ok {
+						q = append(q, newStr)
+						delete(worddListMap, newStr)
+					}
+
+				}
+			}
+
+		}
+	}
+	return 0
+
 }

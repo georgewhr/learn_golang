@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 /*
@@ -74,29 +75,75 @@ func (this *InMemoryDB) Delete(key string, field string) bool {
 func (this *InMemoryDB) Scan(key string) string {
 
 	res := ""
+	tempRes := make([][]string, 0)
 	for k, val := range this.db {
 		// ksplit := strings.Split(k, "_")
 		if k.key == key {
+			tempRes = append(tempRes, []string{k.field, val.value})
 			// for _, item := range val {
-			res = res + fmt.Sprintf("%s(%s), ", k.field, val.value)
+			// res = res + fmt.Sprintf("%s(%s), ", k.field, val.value)
 			// }
 
 		}
 	}
 
+	if len(tempRes) == 0 {
+		return ""
+	}
+
+	sort.Slice(tempRes, func(i, j int) bool {
+		return tempRes[i][0] > tempRes[j][0]
+	})
+
+	var parts []string
+
+	for _, pair := range tempRes {
+		parts = append(parts, fmt.Sprintf("%s(%s)", pair[0], pair[1]))
+
+	}
+
+	result := strings.Join(parts, ", ")
+	fmt.Println(result)
+
+	// for _, val := range tempRes {
+	// 	res = res + fmt.Sprintf("%s(%s), ", val[0], val[1])
+
+	// }
+
 	return res
 
 }
-func (this *InMemoryDB) ScanPrefix(key string, field string) string {
+func (this *InMemoryDB) ScanPrefix(key string, prefix string) string {
 
-	res := ""
+	// res := ""
+	tempRes := make([][]string, 0)
 	for k, val := range this.db {
-		// if key == k.key && field == k.field {
-		res = res + fmt.Sprintf("%s(%s), ", k.key, val.value)
-		// }
+		if k.key == key && strings.HasPrefix(val.value, prefix) {
+			tempRes = append(tempRes, []string{k.field, val.value})
+
+		}
+
 	}
 
-	return res
+	if len(tempRes) == 0 {
+		return ""
+	}
+
+	sort.Slice(tempRes, func(i, j int) bool {
+		return tempRes[i][0] > tempRes[j][0]
+	})
+
+	var parts []string
+
+	for _, pair := range tempRes {
+		parts = append(parts, fmt.Sprintf("%s(%s)", pair[0], pair[1]))
+
+	}
+
+	result := strings.Join(parts, ", ")
+	fmt.Println(result)
+
+	return result
 
 }
 
@@ -161,20 +208,39 @@ func (this *InMemoryDB) GetAt(key string, field string, time string) string {
 
 }
 
-// func (this *InMemoryDB) ScanAt(key string, time string) string {
+func (this *InMemoryDB) ScanAt(key string, time string) string {
 
-// 	res := ""
-// 	for k, v := range this.db {
+	// res := ""
+	tempRes := make([][]string, 0)
+	for k, v := range this.db {
 
-// 		if k.key == key && v.ttl > convertStrInt(time) {
-// 			res = res + fmt.Sprintf("%s(%s), ", k.field, v.value)
-// 		}
+		if k.key == key && v.ttl > convertStrInt(time) {
+			tempRes = append(tempRes, []string{k.field, v.value})
+		}
 
-// 	}
+	}
 
-// 	return res
+	if len(tempRes) == 0 {
+		return ""
+	}
 
-// }
+	sort.Slice(tempRes, func(i, j int) bool {
+		return tempRes[i][0] > tempRes[j][0]
+	})
+
+	var parts []string
+
+	for _, pair := range tempRes {
+		parts = append(parts, fmt.Sprintf("%s(%s)", pair[0], pair[1]))
+
+	}
+
+	result := strings.Join(parts, ", ")
+	fmt.Println(result)
+
+	return result
+
+}
 
 func (this *InMemoryDB) Backup(time string) string {
 

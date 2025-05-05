@@ -51,13 +51,15 @@ type Queue struct {
 
 func InitQueue(cap int) *Queue {
 	return &Queue{
-		arr:   make([]interface{}, 0, cap),
+		arr:   make([]interface{}, 0),
 		front: 0,
 		tail:  -1,
 		cap:   cap,
 	}
 }
 
+/*
+ */
 func (q *Queue) Add(item interface{}) int {
 	if q.size == q.cap {
 		return -1

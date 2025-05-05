@@ -8,8 +8,9 @@ Delete(item)
 */
 
 type SinglyListNode struct {
-	Val  interface{}
-	Next *SinglyListNode
+	Val      interface{}
+	Next     *SinglyListNode
+	Previous *SinglyLinkedList
 }
 
 type SinglyLinkedList struct {
@@ -49,12 +50,13 @@ func (l *SinglyLinkedList) InsertEnd(item interface{}) {
 }
 
 func (l *SinglyLinkedList) Delete(item interface{}) *SinglyListNode {
-	temp := l.Head
 
-	if temp.Val == item {
-		l.Head = nil
-		return temp
+	if l.Head.Val == item {
+		rt := l.Head
+		l.Head = l.Head.Next
+		return rt
 	}
+	temp := l.Head
 
 	for temp.Next != nil {
 		if temp.Next.Val == item {
@@ -67,6 +69,7 @@ func (l *SinglyLinkedList) Delete(item interface{}) *SinglyListNode {
 		}
 		temp = temp.Next
 	}
+
 	return nil
 
 }

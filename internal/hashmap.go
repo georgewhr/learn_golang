@@ -43,7 +43,7 @@ type HashMap struct {
 
 func InitHashMap() *HashMap {
 	return &HashMap{tableSize: 0,
-		tableCap: TABLE_INIT_CAP,
+		tableCap: TABLE_INIT_CAP, BackingArr: make([]*HashNode, TABLE_INIT_CAP),
 	}
 }
 
@@ -58,12 +58,7 @@ func (h *HashMap) Put(key int, value int) int {
 		h.BackingArr[index] = &HashNode{key: key, val: value}
 	} else {
 		headNode := h.BackingArr[index]
-		for headNode.next != nil {
-			if headNode.key == key {
-				previousVal := headNode.key
-				headNode.val = value
-				return previousVal
-			}
+		for headNode.next != nil && headNode.key != key {
 			headNode = headNode.next
 		}
 
@@ -71,11 +66,36 @@ func (h *HashMap) Put(key int, value int) int {
 			previousVal := headNode.key
 			headNode.val = value
 			return previousVal
-		}
+		} else {
+			headNode.next = &HashNode{key: key, val: value}
+			return 0
 
-		headNode.next = &HashNode{key: key, val: value}
+		}
 	}
 	return -1
+
+}
+
+func (h *HashMap) Get(key int, value int) int {
+	index := h.getIndex(key)
+
+	if h.BackingArr[index] == nil {
+		return -1
+	}
+
+	temp := h.BackingArr[index]
+
+	for temp != nil && temp.key != key {
+		temp = temp.next
+	}
+
+	if temp == nil {
+		return -1
+	} else {
+		return temp.val
+	}
+
+	return 0
 
 }
 

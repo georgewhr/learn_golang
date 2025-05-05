@@ -93,6 +93,14 @@ type Payment struct {
 	position  string
 }
 
+type Transfer struct {
+	srcAccount    string
+	targetAccount string
+	time          string
+	amount        int
+	status        string
+}
+
 type BankingSystem struct {
 	bkSystem map[string]*AcountInfo
 }

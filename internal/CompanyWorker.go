@@ -110,6 +110,8 @@ func (this *CompanyWorker) TopN(n string, position string) string {
 		return tempList[i].totalTime > tempList[j].totalTime
 	})
 
+	// var parts []string
+
 	if convertStrInt(n) >= len(tempList) {
 		for _, val := range tempList {
 

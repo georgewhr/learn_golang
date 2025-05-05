@@ -1,5 +1,7 @@
 package internal
 
+import "math"
+
 // type Stack = internal.Stack
 /*
 MinStack API
@@ -14,39 +16,51 @@ GetMin, int
 
 */
 
+type Items struct {
+	data   int
+	minVal int
+}
 type MinStack struct {
-	myStack Stack
-	cap     int
-	size    int
-	minVal  int
+	myStack      []Items
+	cap          int
+	currentIndex int
+	size         int
+	minVal       int
 }
 
 func Construcutor(size int) *MinStack {
-	return &MinStack{myStack: *InitStack(size), cap: size}
+	return &MinStack{myStack: []Items{}, cap: size, minVal: math.MaxInt, currentIndex: 0}
 }
 
 func (s *MinStack) Push(val int) {
-	if s.size == 0 {
-		s.myStack.Push([]int{val, val})
-		s.minVal = val
-	} else {
-		if val < s.minVal {
-			s.minVal = val
-		}
-		s.myStack.Push([]int{val, s.minVal})
+	if s.cap == s.size {
+		return
 	}
+
+	if val < s.minVal {
+		s.minVal = val
+	}
+	data := Items{data: val, minVal: s.minVal}
+
+	s.myStack[s.currentIndex] = data
+	s.currentIndex++
+}
+
+func (s *MinStack) Pop() int {
+	item := s.myStack[s.currentIndex]
+	s.currentIndex--
+	s.minVal = s.myStack[s.currentIndex].minVal
+	return item.data
 
 }
 
-// func (s *MinStack) Pop() int {
-// 	// return s.myStack.Pop()[0]
+func (s *MinStack) Top() int {
+	item := s.myStack[s.currentIndex]
+	return item.data
 
-// }
+}
 
-// func (s *MinStack) Top() int {
+func (s *MinStack) GetMin() int {
+	return s.minVal
 
-// }
-
-// func (s *MinStack) GetMin() int {
-
-// }
+}

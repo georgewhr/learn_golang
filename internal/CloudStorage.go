@@ -180,6 +180,15 @@ func convertIntStr(num int) string {
 	return rt
 }
 
+func containsString(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *CloudStorage) Add(filePath string, size string) bool {
 	k := FileKey{path: filePath}
 	if _, ok := this.cs[k]; !ok {
@@ -216,18 +225,22 @@ func (this *CloudStorage) DeleteVersion(filePath string, version string) string 
 	}
 
 	if version == "0" {
-		temp := &File{path: this.cs[k].otherVersionFiles[0].path, size: this.cs[k].otherVersionFiles[0].size, version: "0"}
-		temp.otherVersionFiles = make([]*File, 0)
+		if len(this.cs[k].otherVersionFiles) > 0 {
+			temp := &File{path: this.cs[k].otherVersionFiles[0].path, size: this.cs[k].otherVersionFiles[0].size, version: "0"}
+			temp.otherVersionFiles = make([]*File, 0)
 
-		for _, entry := range this.cs[k].otherVersionFiles[1:] {
-			temp1 := &File{path: entry.path, size: entry.size, version: convertIntStr(convertStrInt(entry.version) - 1)}
-			temp.otherVersionFiles = append(temp.otherVersionFiles, temp1)
+			for _, entry := range this.cs[k].otherVersionFiles[1:] {
+				temp1 := &File{path: entry.path, size: entry.size, version: convertIntStr(convertStrInt(entry.version) - 1)}
+				temp.otherVersionFiles = append(temp.otherVersionFiles, temp1)
+			}
+
+			delete(this.cs, k)
+
+			this.cs[k] = temp
+			this.cs[k].latestVersion = this.cs[k].otherVersionFiles[len(this.cs[k].otherVersionFiles)-1].latestVersion
+		} else {
+			delete(this.cs, k)
 		}
-
-		delete(this.cs, k)
-
-		this.cs[k] = temp
-		this.cs[k].latestVersion = this.cs[k].otherVersionFiles[len(this.cs[k].otherVersionFiles)-1].latestVersion
 
 	} else {
 
@@ -462,7 +475,20 @@ func (this *CloudStorage) DeCompressFile(userId string, file string) string {
 	// newFileName := file + ".COMPRESSED"
 
 	// this.cs[newFileName] = &File{path:newFileName, size: }
+	// output := strings.TrimSuffix(file, ".COMPRESSED")
 	k := FileKey{path: file}
+
+	if !containsString(this.cs[k].owner, userId) {
+		return "false"
+	}
+
+	for _, owner := range this.cs[k].owner {
+		if _, ok := this.users[owner]; ok {
+			if this.cs[k].size+this.users[owner].usedSize > this.users[owner].capacity {
+				return "false"
+			}
+		}
+	}
 	delete(this.cs, k)
 	return ""
 
