@@ -1,7 +1,7 @@
 package internal
 
 /*
-MinHeap API:
+MaxHeap API:
 
 insertVal()
 removeVal()
@@ -17,14 +17,14 @@ heapifyDown()
 
 */
 
-type MinHeap struct {
+type MaxHeap struct {
 	backingArr []int
 	size       int
 	cap        int
 }
 
-func MinHeapConstructor(cap int) *MinHeap {
-	return &MinHeap{size: 0, cap: cap, backingArr: make([]int, 0)}
+func MaxHeapConstructor(cap int) *MaxHeap {
+	return &MaxHeap{size: 0, cap: cap, backingArr: make([]int, 0)}
 }
 
 /*
@@ -32,7 +32,7 @@ Insert value to the array,
 1.insert to the end of array
 2.perform heapifyup
 */
-func (this *MinHeap) InsertVal(val int) int {
+func (this *MaxHeap) InsertVal(val int) int {
 
 	this.backingArr = append(this.backingArr, val)
 	this.heapifyUp()
@@ -47,7 +47,7 @@ Remove smallest Value
 2. assign last element to arr[0]
 3. perform heapifydown
 */
-func (this *MinHeap) RemoveVal() int {
+func (this *MaxHeap) RemoveVal() int {
 	n := len(this.backingArr)
 	this.swap(0, n-1)
 	valueToRemove := this.backingArr[n-1]
@@ -67,7 +67,7 @@ func (this *MinHeap) RemoveVal() int {
 
 */
 
-func (this *MinHeap) heapifyDown(currentIndex int, endIndex int) {
+func (this *MaxHeap) heapifyDown(currentIndex int, endIndex int) {
 	leftChildIndex := 2*currentIndex + 1
 	for leftChildIndex <= endIndex {
 		rightChildIndex := 2*currentIndex + 2
@@ -76,11 +76,11 @@ func (this *MinHeap) heapifyDown(currentIndex int, endIndex int) {
 		}
 		indexToSwap := leftChildIndex
 
-		if rightChildIndex != -1 && this.backingArr[rightChildIndex] < this.backingArr[leftChildIndex] {
+		if rightChildIndex != -1 && this.backingArr[rightChildIndex] > this.backingArr[leftChildIndex] {
 			indexToSwap = rightChildIndex
 		}
 
-		if this.backingArr[indexToSwap] < this.backingArr[currentIndex] {
+		if this.backingArr[indexToSwap] > this.backingArr[currentIndex] {
 			this.swap(indexToSwap, currentIndex)
 			currentIndex = indexToSwap
 			leftChildIndex = currentIndex*2 + 1
@@ -98,10 +98,10 @@ Add value
 
 */
 
-func (this *MinHeap) heapifyUp() {
+func (this *MaxHeap) heapifyUp() {
 	currentIndex := len(this.backingArr) - 1
 	parentIndex := (currentIndex - 1) / 2
-	for currentIndex > 0 && this.backingArr[parentIndex] > this.backingArr[currentIndex] {
+	for currentIndex > 0 && this.backingArr[parentIndex] < this.backingArr[currentIndex] {
 		this.swap(currentIndex, parentIndex)
 		currentIndex = parentIndex
 		parentIndex = (currentIndex - 1) / 2
@@ -109,7 +109,7 @@ func (this *MinHeap) heapifyUp() {
 
 }
 
-func (this *MinHeap) swap(i int, j int) {
+func (this *MaxHeap) swap(i int, j int) {
 
 	temp := this.backingArr[i]
 	this.backingArr[i] = this.backingArr[j]

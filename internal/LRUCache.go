@@ -21,6 +21,11 @@ Get(key)
 2. get from map return the list node
 3. remove the list node, and then insert again.
 
+
+
+Need a hashtable to store key, val pair
+
+
 */
 
 type LRUCache struct {

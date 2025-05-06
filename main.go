@@ -6,6 +6,7 @@ import (
 	"george/internal"
 	"math"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ type PriorityQueue = internal.PriorityQueue
 type Stack = internal.Stack
 type TreeNode = internal.TreeNode
 type TBHS = internal.TBHT
+type MinHeap = internal.MinHeap
 type Test struct {
 	name string
 	size int
@@ -32,6 +34,40 @@ func test123(arr []int) {
 }
 
 func main() {
+
+	letterCombinations("34")
+
+	islandPerimeter([][]int{{0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}})
+	leastInterval([]int{2, 2, 3, 4, 5}, 3)
+	minHeap := internal.MinHeapConstructor(10)
+	minHeap.InsertVal(10)
+	minHeap.InsertVal(11)
+	minHeap.InsertVal(5)
+	minHeap.InsertVal(7)
+	minHeap.InsertVal(2)
+	minHeap.InsertVal(3)
+	minHeap.InsertVal(1)
+
+	minHeap.RemoveVal()
+	minHeap.RemoveVal()
+	minHeap.RemoveVal()
+	minHeap.RemoveVal()
+	minHeap.RemoveVal()
+
+	maxHeap := internal.MaxHeapConstructor(10)
+	maxHeap.InsertVal(10)
+	maxHeap.InsertVal(11)
+	maxHeap.InsertVal(5)
+	maxHeap.InsertVal(7)
+	maxHeap.InsertVal(2)
+	maxHeap.InsertVal(3)
+	maxHeap.InsertVal(1)
+
+	maxHeap.RemoveVal()
+	maxHeap.RemoveVal()
+	maxHeap.RemoveVal()
+	maxHeap.RemoveVal()
+	maxHeap.RemoveVal()
 
 	rotateArr([]int{1, 2, 3, 4}, 2)
 	testtest := make([]int, 10)
@@ -6445,7 +6481,234 @@ func kClosest(points [][]int, k int) {
 Input: tasks = ["A","A","A","B","C"], n = 3
 
 Output: 9
+A:3
+B:1
+C:1
+maxHeap
+item = maxHeap.Pop()
+map[item] --
+if map[item] == 0, delete item in map
+
+for len(map) != 0 {
+
+	k = 0
+	for entry in map {
+		k++
+		heap.add(entry)
+		if k == n + 1 {
+			break
+		}
+
+	}
+	for len(q) < n + 1 && maxHeap.len() > 0
+		item = maxHeap.Pop()
+		map[item] --
+		if map[item] == 0, delete item in map
+		q.add(item)
+	for len(q) < n + 1 {
+		q.add(Idel)
+	}
+
+}
 */
-func leastInterval(tasks []byte, n int) int {
+func leastInterval(tasks []int, n int) int {
+	taskTable := make(map[int]int)
+	// maxHeap := internal.MaxHeapConstructor(10)
+	taskSchduleMaxHeap := &internal.TaskScheduleMaxHeap{}
+	heap.Init(taskSchduleMaxHeap)
+	q := make([]internal.TaskSchedule, 0)
+	res := ""
+
+	for _, val := range tasks {
+		taskTable[val]++
+
+	}
+
+	for len(taskTable) > 0 {
+		j := 0
+
+		for k, v := range taskTable {
+			// item :=
+			heap.Push(taskSchduleMaxHeap, internal.TaskSchedule{ID: k, Priority: v})
+			if j == n+1 {
+				break
+			}
+		}
+
+		for len(q) < n+1 && taskSchduleMaxHeap.Len() > 0 {
+			item := heap.Pop(taskSchduleMaxHeap).(internal.TaskSchedule)
+			taskTable[item.ID]--
+			if taskTable[item.ID] == 0 {
+				delete(taskTable, item.ID)
+			}
+			q = append(q, item)
+		}
+
+		for len(q) < n+1 {
+			q = append(q, internal.TaskSchedule{ID: 999, Priority: 999})
+		}
+
+		for len(q) > 0 {
+			res = res + strconv.Itoa(q[0].ID) + "  "
+			q = q[1:]
+
+		}
+
+	}
+
+	return 0
+
+}
+
+/*
+Check if the next cell is out of boundary or in the water
+if yes, then increase perimeter by 1
+m = len(grid)
+n = len(grid[0])
+
+lands = {[0,1], [1,0],[1,1],[1,2],[2,1],[3,0],[3,1]}
+
+
+
+dfs = func(spot, lands) {
+
+	if spot is land {
+		return
+	}
+
+	if spot is out of boundary or spot is water{
+		perimeter ++
+	}
+
+	if visted[spot] == true {
+		return
+	}
+
+	visted[spot] = true
+
+
+	dfs all 4 directions
+
+
+}
+
+
+
+
+
+for land in lands {
+	dfs(land + 1, grid)
+
+}
+
+Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
+Output: 16
+Explanation: The perimeter is the 16 yellow stripes in the image above.
+
+
+*/
+
+func islandPerimeter(grid [][]int) int {
+
+	var dfs func(r int, c int)
+	p := 0
+	m := len(grid)
+	n := len(grid[0])
+	visted := make(map[[2]int]bool)
+
+	dfs = func(r int, c int) {
+		if r >= m || c >= n || r < 0 || c < 0 || grid[r][c] == 0 {
+			p++
+			return
+		}
+		spot := [2]int{r, c}
+		if visted[spot] {
+			return
+		}
+		visted[spot] = true
+
+		dfs(r+1, c)
+		dfs(r, c+1)
+		dfs(r-1, c)
+		dfs(r, c-1)
+
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if grid[i][j] == 1 {
+				dfs(i, j)
+			}
+
+		}
+	}
+
+	return p
+
+}
+
+/*
+The idea is to serach all the land srounding land, and marked the serached to 0
+
+dfs(x, y) {
+
+	if x, y out of boundary or is water {
+		return
+	}
+
+	table[x,y] = 0
+
+
+	dfs(x+1, y)
+	dfs(x-1, y)
+	dfs(x, y+1)
+	dfs(x, y-1)
+
+}
+
+	for land in islands {
+		dfs([x, y])
+		island++
+	}
+*/
+func numsIslands([][]int) int {
+	return 0
+}
+
+func letterCombinations(digits string) []string {
+
+	// str := "ghi"
+	res := []string{}
+
+	digitToChar := map[byte]string{
+		'2': "abc",
+		'3': "def",
+		'4': "ghi",
+		'5': "jkl",
+		'6': "mno",
+		'7': "pqrs",
+		'8': "tuv",
+		'9': "wxyz",
+	}
+
+	var dfs func(start int, temp string)
+	dfs = func(start int, temp string) {
+
+		if len(temp) == len(digits) {
+			res = append(res, temp)
+			return
+		}
+
+		for _, val := range digitToChar[digits[start]] {
+			temp += string(val)
+			dfs(start+1, temp)
+			temp = temp[:len(temp)-1]
+		}
+
+	}
+
+	dfs(0, "")
+
+	return res
 
 }
