@@ -6671,8 +6671,39 @@ dfs(x, y) {
 		island++
 	}
 */
-func numsIslands([][]int) int {
-	return 0
+func numsIslands(grid [][]byte) int {
+
+	numIslands := 0
+	m := len(grid)
+	n := len(grid[0])
+	var dfs func(r int, c int)
+
+	dfs = func(r int, c int) {
+
+		if r >= m || c >= n || r < 0 || c < 0 || grid[r][c] == '0' {
+			return
+		}
+
+		grid[r][c] = '0'
+
+		dfs(r+1, c)
+		dfs(r, c+1)
+		dfs(r-1, c)
+		dfs(r, c-1)
+
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if grid[i][j] == '1' {
+				numIslands++
+				dfs(i, j)
+			}
+
+		}
+	}
+
+	return numIslands
 }
 
 func letterCombinations(digits string) []string {
@@ -6710,5 +6741,45 @@ func letterCombinations(digits string) []string {
 	dfs(0, "")
 
 	return res
+
+}
+
+/*
+123 + 20
+1. a function to convert string to int
+
+res = 0
+sign = 1 //1 is plus. -1 is negative
+for each char in string {
+
+
+	if char is number{
+		res = char + res*10
+	}
+
+
+	else if char is + - {
+
+		if sign == 1 {
+			stack.push(res)
+		} else if sign == -1 {
+			stack.push(-res)
+		}
+
+		res = 0
+
+		if char is - {
+			sign = -1
+		} else if char is + {
+			sign = 1
+		}
+
+	}
+}
+
+
+*/
+
+func basicCalculator(s string) int {
 
 }
