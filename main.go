@@ -35,6 +35,47 @@ func test123(arr []int) {
 
 func main() {
 
+	climbStairDFS(3)
+	removeOtherPrix([]string{"abc", "ab", "abce", "apple", "app"})
+
+	trieNodeHead := &internal.TrieTable{}
+	trieNodeHead.Insert("abc")
+	trieNodeHead.Search("abc")
+
+	basicImplementations()
+	var head *ListNode
+	myList := List{}
+	head = myList.InsertRecursion(head, 1)
+	head = myList.InsertRecursion(head, 2)
+	head = myList.InsertRecursion(head, 3)
+	head = myList.InsertRecursion(head, 4)
+	// myList.InsertRecursion(myList.Head, 3)
+	// myList.Insert(10)
+	// myList.Insert(6)
+	// myList.Insert(3)
+	// myList.Insert(2)
+
+	// myList2 := List{}
+	// myList2.Insert(13)
+	// myList2.Insert(11)
+	// myList2.Insert(8)
+
+	// mergeKsortedListPQ([]*ListNode{myList.Head, myList2.Head})
+
+	s := "george"
+	y := s[0]
+	fmt.Print(string(y))
+
+	for _, val := range s {
+		fmt.Print(string(val))
+	}
+
+	basicCalculator("(1+1)*3+1")
+	tt := make([]int, 10)
+	tt = append(tt, 10)
+
+	fmt.Print(len(tt))
+
 	letterCombinations("34")
 
 	islandPerimeter([][]int{{0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}})
@@ -175,13 +216,6 @@ func main() {
 	// fmt.Printf("number is %s", test1[0:1])
 	// output := longestCommonPrefix(test)
 	// fmt.Printf("number is %f\n", output)
-	basicImplementations()
-	myList := List{}
-	myList.Insert(1)
-	myList.Insert(2)
-	myList.Insert(3)
-	myList.Insert(4)
-	myList.Insert(5)
 
 	// myNode := removeNthNodeFromEndofList(myList.Head, 2)
 	// fmt.Printf("number is %f", myNode.Val)
@@ -4244,6 +4278,12 @@ if left return left
 
 */
 
+/*
+There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return true if you can finish all courses. Otherwise, return false.
+*/
 func courseScheduler(numCourses int, prerequisites [][]int) bool {
 	preReqMap := make(map[int][]int)
 	visitedCrs := make(map[int]int)
@@ -4551,6 +4591,52 @@ memo[amount] = val, val is smallest number of combination plus amount to target
 0    1    2    3    4    5    6    7    8    9    10    11    12
           1                   2     1              2      1
 */
+
+func coinChangeRec2NoMemo(coins []int, amount int) int {
+
+	memo := make(map[int]int)
+
+	var backtracking func(coins []int, amount int) int
+	backtracking = func(coins []int, amount int) int {
+
+		if amount < 0 {
+			return -1
+		}
+
+		if amount == 0 {
+			return 0
+		}
+
+		if _, ok := memo[amount]; ok {
+			return memo[amount]
+		}
+		minCnt := math.MaxInt16
+
+		for i := 0; i < len(coins); i++ {
+			rt := backtracking(coins, amount-coins[i])
+			if rt == -1 {
+				continue
+			}
+
+			if rt < minCnt {
+				minCnt = rt + 1
+			}
+
+		}
+
+		if minCnt == math.MaxInt16 {
+			memo[amount] = -1
+		} else {
+			memo[amount] = minCnt
+		}
+
+		return memo[amount]
+
+	}
+	memo[amount] = backtracking(coins, amount)
+	return memo[amount]
+
+}
 
 func coinChangeRec(coins []int, amount int) int {
 
@@ -6778,8 +6864,495 @@ for each char in string {
 }
 
 
+11 + 1
+2 *3
 */
 
 func basicCalculator(s string) int {
+
+	var sign byte
+	sign = '+'
+	res := 0
+	stack := make([]int, 0)
+	finalRes := 0
+	subStart, subEnd := 0, 0
+
+	for index := 0; index < len(s); {
+		val := s[index]
+		if isDigits(val) {
+			res = int(val-'0') + res*10
+		}
+
+		if val == '-' || val == '+' || val == '*' || val == '/' || index == len(s)-1 {
+			if sign == '+' {
+				stack = append(stack, res)
+			} else if sign == '-' {
+				stack = append(stack, -res)
+			} else if sign == '*' {
+				pre := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				temp := pre * res
+				stack = append(stack, temp)
+
+			} else if sign == '/' {
+				pre := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				temp := pre / res
+				stack = append(stack, temp)
+			}
+			sign = val
+
+			res = 0
+		}
+
+		if val == '(' {
+			subStart = index
+
+			for l := index; l < len(s); l++ {
+				if s[l] == ')' {
+					subEnd = l
+					subSum := basicCalculator(s[subStart+1 : subEnd])
+					sign = s[subEnd+1]
+					stack = append(stack, subSum)
+					index = l + 1
+					break
+				}
+			}
+
+		}
+		index++
+	}
+
+	for _, val := range stack {
+		finalRes += val
+	}
+
+	return finalRes
+
+}
+
+func isDigits(char byte) bool {
+	if char >= '0' && char <= '9' {
+		return true
+	} else {
+		return false
+	}
+
+}
+
+/*
+Declare a priority q, say , pq
+
+dummyNode
+temp = DumyNode
+
+	for headNode := range lists {
+		pq.enque(headNode)
+	}
+
+	for !pq.empty() {
+		item = pq.dequeue()
+		temp.Next = item
+		temp = temp.next
+
+		pe.enqueue(item.next)
+
+}
+*/
+func mergeKsortedListPQ(lists []*ListNode) {
+
+	// minHeap := internal.MinHeapConstructor(10)
+	minHeap := &internal.MinHeapListNode{}
+	heap.Init(minHeap)
+
+	for _, val := range lists {
+		heap.Push(minHeap, val)
+	}
+
+	for minHeap.Len() != 0 {
+		item := heap.Pop(minHeap).(*ListNode)
+		fmt.Print("\nnumer is \n", item.Val)
+		if item.Next != nil {
+			heap.Push(minHeap, item.Next)
+		}
+
+	}
+
+}
+
+/*
+Use DFS to find the loop
+3->[1, 2]
+1->3
+visted[]
+
+	dfs() {
+		if visted[person] {
+			return false
+		}
+
+}
+Input: n = 3, trust = [[1,3],[2,3]]
+Output: 3
+*/
+func findJudge(n int, trust [][]int) int {
+
+	visted := make(map[int]int)
+	table := make(map[int][]int)
+
+	for _, val := range trust {
+		table[val[1]] = append(table[val[1]], val[0])
+	}
+
+	var dfs func(person int, visted map[int]int) bool
+	dfs = func(person int, visted map[int]int) bool {
+
+		if visted[person] == 1 {
+			return false
+		}
+
+		visted[person] = 1
+
+		for _, val := range table[person] {
+			return dfs(val, visted)
+		}
+		return true
+	}
+
+	for i := 1; i <= n; i++ {
+		if !dfs(i, visted) {
+			return 1
+		}
+	}
+
+	return -1
+
+}
+
+/*
+str, st, strg, strgeorge, apple, apple1, apple2
+strgeorge, apple1, apple2
+
+str st
+
+st str
+for i < len
+
+	for j = i, < len {
+		if list[i] and list[j] is prefix for each other
+	}
+
+checkIfPrefix
+check short lenth,
+
+	for i =0 < len(shortStr) {
+		if str1[i] != str2[i] {
+			return false
+		}
+	}
+
+return true
+
+Use trie or nested hashmap
+str, st, strg, strgeorge
+
+	for index, str in list {
+		indexTable[str] = index
+		checkIfPrefix(str, indexTable)
+	}
+
+	checkIfPrefix(str,indexTable ) {
+		for index, char in str {
+			if trie.head.children[char] == nil {
+				tire.insert(char)
+				tire = trie.next
+				if indexTable[arr] {
+					remove indexTable(arr)
+				}
+
+			} else {
+				trie = tire.head.children[char]
+			}
+		}
+
+		if trie.next != nil {
+			remove str
+			remove str from indextable
+		}
+	}
+
+str, st, strg, strgeorge, apple, apple1, apple2
+*/
+func removeOtherPrix(str []string) {
+
+	for i := 0; i < len(str); i++ {
+		for j := i + 1; j < len(str); j++ {
+
+			if len(str[i]) == 0 || len(str[j]) == 0 {
+				continue
+			}
+			res := checkPrefixEach(str[i], str[j])
+			if res == 2 {
+				continue
+			} else if res == 0 {
+				fmt.Println(str[i])
+				str[i] = ""
+			} else {
+				fmt.Println(str[j])
+				str[j] = ""
+			}
+
+		}
+	}
+
+}
+
+func checkPrefixEach(str1 string, str2 string) int {
+	if len(str1) < len(str2) {
+
+		for i := 0; i < len(str1); i++ {
+			if str1[i] != str2[i] {
+				return 2
+			}
+		}
+
+		return 0
+
+	} else {
+		for i := 0; i < len(str2); i++ {
+			if str1[i] != str2[i] {
+				return 2
+			}
+		}
+		return 1
+	}
+
+}
+
+/*
+q.add(root)
+minimumPath = 1
+for q.len() != emptry {
+	ql = q.len()
+	for i > ql {
+		node = q.deque()
+		if node.left ==nil && node.right == nill {
+			minimumPath ++
+			return minimumPath
+		}
+
+		if node.left != nil {
+			q.enqueue{node.left}
+		}
+
+		if node.right != nil {
+			q.enqueue{node.right}
+		}
+
+	}
+}
+
+
+*/
+
+func findMinimumPathOfTreeBFS(root *TreeNode) int {
+
+	if root == nil {
+		return 0
+	}
+	q := []*TreeNode{}
+	q = append(q, root)
+	minimumPath := 0
+
+	for len(q) != 0 {
+		ql := len(q)
+		minimumPath++
+
+		for i := 0; i < ql; i++ {
+			node := q[0]
+			q = q[1:]
+
+			if node.Left == nil && node.Right == nil {
+				return minimumPath
+			}
+
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+
+		}
+	}
+
+	return minimumPath
+
+}
+
+func findMinimumPathOfTreeDFS(root *TreeNode) int {
+	minNum := math.MaxInt64
+	var dfs func(root *TreeNode, depth int)
+	dfs = func(root *TreeNode, depth int) {
+		if root == nil {
+			return
+		}
+
+		depth++
+
+		if root.Left == nil && root.Right == nil {
+			minNum = findMin(depth, minNum)
+			return
+		}
+
+		dfs(root.Left, depth)
+		dfs(root.Right, depth)
+		depth--
+
+	}
+
+	dfs(root, 0)
+
+	if minNum == math.MaxInt64 {
+		return 0
+	}
+	return minNum
+
+}
+
+/*
+1,
+
+1,  2,  3, 4 , 5
+*/
+
+func climbStairDFS(n int) int {
+
+	memo := make(map[int]int)
+	var dfs func(leftStarts int) int
+	dfs = func(leftStarts int) int {
+
+		if leftStarts < 0 {
+			return 0
+		}
+		if leftStarts == 0 {
+			return 1
+		}
+
+		if _, ok := memo[leftStarts]; ok {
+			return memo[leftStarts]
+		}
+
+		memo[leftStarts] = dfs(leftStarts-1) + dfs(leftStarts-2)
+
+		return memo[leftStarts]
+
+	}
+
+	memo[n] = dfs(n)
+	return memo[n]
+
+}
+
+/*
+DP, DFS
+base case, house index is equal to greater than len
+max = findMax(n + dfs(n+2) , dfs(n+1))
+
+return max
+*/
+func houseRober2nd(nums []int) int {
+
+	memo := make(map[int]int)
+	var dp func(houseIndex int) int
+
+	// max := math.MinInt32
+	dp = func(houseIndex int) int {
+		if houseIndex >= len(nums) {
+			return 0
+		}
+
+		if _, ok := memo[houseIndex]; ok {
+			return memo[houseIndex]
+		}
+
+		rob := nums[houseIndex] + dp(houseIndex+2)
+		skip := dp(houseIndex + 1)
+
+		max := findMax(rob, skip)
+		memo[houseIndex] = max
+		return memo[houseIndex]
+
+	}
+
+	return dp(0)
+
+}
+
+func houseRober2ndCircle(nums []int) int {
+
+	memo := make(map[int]int)
+	var dfs func(index int, nums []int) int
+	dfs = func(index int, nums []int) int {
+		if index >= len(nums) {
+			return 0
+		}
+
+		if _, ok := memo[index]; ok {
+			return memo[index]
+		}
+
+		rob := nums[index] + dfs(index+2, nums)
+		skip := dfs(index+1, nums)
+		max := findMax(rob, skip)
+		memo[index] = max
+		return memo[index]
+
+	}
+
+	if len(nums) > 2 {
+		one := dfs(0, nums[:len(nums)-1])
+		memo = make(map[int]int)
+		two := dfs(0, nums[1:])
+		max := findMax(one, two)
+		return max
+
+	} else {
+		return dfs(0, nums)
+	}
+
+}
+
+func coinChangeBFS(coins []int, amount int) int {
+	q := make([]int, 0)
+	q = append(q, amount)
+	numOfCoins := 0
+
+	for len(q) > 0 {
+		ql := len(q)
+		numOfCoins++
+
+		for i := 0; i < ql; i++ {
+
+			balance := q[0]
+			q = q[1:]
+			for _, coin := range coins {
+
+				change := balance - coin
+				if change == 0 {
+					return numOfCoins
+				} else if change > 0 {
+					q = append(q, change)
+				} else {
+					continue
+				}
+
+			}
+
+		}
+	}
+
+	return -1
 
 }

@@ -12,9 +12,18 @@ type LinkedList struct {
 	Head *ListNode
 }
 
+func (n *LinkedList) InsertRecursion(root *ListNode, data int) *ListNode {
+	if root == nil {
+		return &ListNode{Val: data, Next: nil}
+	}
+
+	root.Next = n.InsertRecursion(root.Next, data)
+	return root
+
+}
 func (n *LinkedList) Insert(data int) {
 	var newNode = &ListNode{Val: data}
-	if n == nil {
+	if n.Head == nil {
 		n.Head = newNode
 	} else {
 		newNode.Next = n.Head
