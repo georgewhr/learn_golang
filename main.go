@@ -35,6 +35,17 @@ func test123(arr []int) {
 
 func main() {
 
+	palindromeSubstringDP("aaa")
+
+	lisOwn([]int{4, 10, 4, 3, 8, 9})
+
+	test := fibTopDown(10)
+	fmt.Println(test)
+	test = fibBottomUp(10)
+	fmt.Println(test)
+	uniquePathsBacktracking(10, 8)
+
+	decodeways("226")
 	climbStairDFS(3)
 	removeOtherPrix([]string{"abc", "ab", "abce", "apple", "app"})
 
@@ -362,7 +373,8 @@ func main() {
 	// climbingStairsBC(3)
 	// houseRober2([]int{1, 2, 3})
 	// maxProduct([]int{2, 3, -2, 4})
-	maxProduct([]int{-2, 0, -1})
+	maxProductDPTopDown([]int{2, 3, -2, 4})
+	maxProduct([]int{1})
 	wordLadder([]string{"hot", "dot", "dog", "lot", "log", "cog"}, "hit", "cog")
 
 }
@@ -4391,6 +4403,41 @@ func fib(n int) int {
 
 }
 
+func fibTopDown(n int) int {
+
+	dp := make(map[int]int)
+	var dfs func(n int) int
+	dfs = func(n int) int {
+
+		if _, ok := dp[n]; ok {
+			return dp[n]
+		}
+		if n == 0 || n == 1 {
+			return 1
+		}
+
+		res := dfs(n-1) + dfs(n-2)
+		dp[n] = res
+		return dp[n]
+	}
+
+	return dfs(n)
+
+}
+
+func fibBottomUp(n int) int {
+	dp := make([]int, n+1)
+
+	dp[0] = 1
+	dp[1] = 1
+
+	for i := 2; i <= n; i++ {
+		dp[i] = dp[i-1] + dp[i-2]
+	}
+	return dp[n]
+
+}
+
 func generateParenthesis(n int) []string {
 	res := []string{}
 
@@ -5118,6 +5165,217 @@ func longestPalindrome(s string) string {
 			if l >= r && resLen < j-1+1 {
 				resLen = j - i + 1
 				res = s[i : j+1]
+			}
+
+		}
+
+	}
+
+	return res
+
+}
+
+/*
+Example 1:
+
+Input: s = "ababd"
+
+Output: "bab"
+
+the idea is to check if dp[i-1][j+1] palindrome, if it is,
+then just check if dp[i] == dp[j] then plus 2
+
+for i -> n-1...0 {
+
+		for j = i, j<n;j++{
+			if nums[i] == nums[j] {
+			dp[i][j] = 2 + dp[i+1][j-1]
+		} else {
+
+			dp[i][j] =max( dp[i+1][j], dp[i][j-1]
+		}
+		}
+	}
+
+	for
+*/
+
+/*
+if dp[i+1][j-1]
+dp[i][j] = dp[i+1][j-1]  + 2, if s[i] == s[j]
+else
+dp[i][j] = max(d[i][j-1], )
+*/
+func longestPalindromeDPLenth(s string) int {
+	n := len(s)
+	dp := make([][]int, n)
+
+	for index, _ := range dp {
+		dp[index] = make([]int, n)
+		dp[index][index] = 1
+	}
+
+	for i := n - 1; i >= 0; i-- {
+
+		for j := i; j < n; j++ {
+
+			if (j-i <= 2 || dp[i+1][j-1] == 1) && s[i] == s[j] {
+				dp[i][j] = dp[i+1][j-1] + 2
+			} else {
+				dp[i][j] = findMax(dp[i][j-1], dp[i+1][j])
+			}
+
+		}
+
+	}
+
+	return 0
+
+}
+
+func longestPalindromeDPSub(s string) string {
+	n := len(s)
+	dp := make([][]int, n)
+	resIds, resLen := 0, 0
+
+	for index, _ := range dp {
+		dp[index] = make([]int, n)
+		dp[index][index] = 1
+	}
+
+	for i := n - 1; i >= 0; i-- {
+
+		for j := i; j < n; j++ {
+
+			if (j-i <= 2 || dp[i+1][j-1] == 1) && s[i] == s[j] {
+				dp[i][j] = dp[i+1][j-1] + 2
+				if resLen <= j-i+1 {
+					resLen = j - i + 1
+					resIds = i
+				}
+			}
+
+		}
+
+	}
+
+	return s[resIds : resLen+resIds]
+
+}
+
+/*
+
+if s[i] == s[j] {
+	dp[i][j] =dp[i+1][j-1] + 3
+} else {
+	dp[i][j] =dp[i+1][j-1] + 2
+}
+
+
+2 pointers
+Example 1:
+
+Input: s = "abc"
+
+Output: 3
+Explanation: "a", "b", "c".
+
+Example 2:
+
+Input: s = "aaa"
+
+Output: 6
+
+
+for i 0->n-1
+   p1, p2 = i
+   for p1 >=0 && p2 < n {
+	   if s[p1] == s[p2] {
+		 res ++
+
+	   } else {
+		 break
+	   }
+	   p1 --
+	   p2 ++
+   }
+
+   i++
+
+aaa
+
+a, 1
+a  1
+1
+aaa 1
+aa 1
+aa 1
+*/
+
+func palindromeSubstring2Pointer(s string) int {
+	res := 0
+	n := len(s)
+
+	p1, p2, p3 := 0, 0, 0
+	for p1 < n {
+		p2, p3 = p1, p1
+
+		for p2 >= 0 && p3 < n {
+			if s[p2] == s[p3] {
+				res++
+
+			} else {
+				break
+			}
+			p2--
+			p3++
+		}
+
+		p2, p3 = p1, p1+1
+
+		for p2 >= 0 && p3 < n {
+			if s[p2] == s[p3] {
+				res++
+
+			} else {
+				break
+			}
+			p2--
+			p3++
+		}
+		p1++
+
+	}
+
+	return res
+
+}
+
+/*
+abcb
+aaa
+dp = make(n, 1)
+
+if (s[i+1:j-1] || j -i <=2 ) && s[i] == s[j]
+s[i:j] = s[i+1:j-1] ? && s[i] == s[j]? , total++
+final result is s[0:n-1]
+*/
+func palindromeSubstringDP(s string) int {
+	n := len(s)
+	dp := make([][]int, n)
+	res := 0
+
+	for i, _ := range dp {
+		dp[i] = make([]int, n)
+	}
+
+	for i := n; i >= 0; i-- {
+
+		for j := i; j < n; j++ {
+			if s[i] == s[j] && (j-i <= 2 || dp[i+1][j-1] == 1) {
+				res++
+				dp[i][j] = 1
+
 			}
 
 		}
@@ -7354,5 +7612,359 @@ func coinChangeBFS(coins []int, amount int) int {
 	}
 
 	return -1
+
+}
+
+/*
+Input: s = "babad"
+Output: "bab"
+Explanation: "aba" is also a valid answer.
+*/
+func longestPalindrome2pointer(s string) string {
+	sLen := len(s)
+	var maxStr string
+	maxLength := 1
+	p1, p2, p3 := 0, 0, 0
+
+	for p1 < sLen {
+
+		p2 = p1
+		p3 = p1
+
+		for p2 >= 0 && p3 < sLen {
+			if s[p2] != s[p3] {
+				break
+			}
+
+			if (p3 - p2) > maxLength {
+				maxLength = p3 - p2
+				maxStr = s[p2:p3]
+			}
+
+			p2--
+			p3++
+		}
+
+		p1++
+
+	}
+
+	return maxStr
+
+}
+
+/*
+Example 1:
+
+Input: nums = [9,1,4,2,3,3,7]
+
+Output: 4
+Explanation: The longest increasing subsequence is [1,2,3,7], which has a length of 4.
+
+Example 2:
+
+Input: nums = [0,3,1,3,2,3]
+
+n=0, 1, 9
+n=1, 1  1
+n=2, 2 4
+n=3 , 2 2
+n=4, 3
+n=5, 3,
+n=6,4
+
+4, 10, 4, 3, 8, 9
+
+0 1
+1 2
+2 1
+3 1
+4 1
+5 3
+
+
+e.g,  n =1 and n =2 is known, find out n = 3
+max
+if nums[n] > nums[n-1] {
+	fn(n) = dp[n-1] + 1
+	max = fn(n)
+} else {
+	fn(n) = dp[n-1]
+}
+
+
+init dp[0-n] to  1
+
+dp[0] = 1
+
+for i [1:n] {
+
+	for j =0;i<i
+	if nums[i] > nums[j] {
+		dp[i] = max(dp[j]+1, dp[i])
+	}
+
+}
+*/
+
+func lisOwn(nums []int) int {
+
+	dp := make([]int, len(nums))
+
+	for i := 0; i < len(dp); i++ {
+		dp[i] = 1
+	}
+
+	for i := 1; i < len(dp); i++ {
+
+		for j := 0; j < i; j++ {
+
+			if nums[i] > nums[j] {
+				dp[i] = findMax(dp[j]+1, dp[i])
+			}
+
+		}
+	}
+
+	res := 0
+	for _, val := range dp {
+		res = findMax(res, val)
+
+	}
+
+	return res
+
+}
+
+func longestIncreasingDP(nums []int) int {
+	lenS := len(nums)
+	dp := make([]int, lenS)
+
+	for i, _ := range dp {
+		dp[i] = 1
+	}
+
+	for i := 0; i < lenS; i++ {
+		for j := 0; j < i; j++ {
+
+			if nums[i] > nums[j] {
+				dp[i] = findMax(dp[i], dp[j]+1)
+			}
+
+		}
+	}
+
+	res := 0
+	for _, val := range dp {
+		res = findMax(res, val)
+	}
+
+	return res
+
+}
+
+/*
+Input: s = "12"
+
+Output: 2
+
+Explanation: "12" could be decoded as "AB" (1 2) or "L" (12).
+12
+1, 2
+12
+
+base case:
+if str starts with 0{
+	return 0
+}
+
+if str[index] is valid{
+	return 1
+}
+
+
+
+
+*/
+
+func decodeways(s string) int {
+
+	originalLen := len(s)
+
+	memo := make(map[int]int)
+
+	var dfs func(s string, index int) int
+	dfs = func(s string, index int) int {
+
+		if _, ok := memo[index]; ok {
+			return memo[index]
+		}
+		if index >= originalLen {
+			return 1
+		}
+
+		if s[index] == '0' {
+			return 0
+		}
+
+		ways := dfs(s, index+1)
+
+		if index+1 < originalLen {
+			if (s[index] == '1') || (s[index] == '2' && s[index+1] < '7') {
+				ways += dfs(s, index+2)
+			}
+		}
+		memo[index] = ways
+
+		return memo[index]
+
+	}
+
+	tt := dfs(s, 0)
+	return tt
+
+}
+
+/*
+ */
+func uniquePathsBacktracking(m int, n int) int {
+
+	memo := make(map[string]int)
+	var dfs func(m int, n int) int
+	dfs = func(m int, n int) int {
+
+		stringified := fmt.Sprintf("%d_%d", m, n)
+		if memo[stringified] != 0 {
+			return memo[stringified]
+		}
+		if (n == 0) || (m == 0) {
+			return 1
+		}
+
+		res := dfs(m-1, n) + dfs(m, n-1)
+		stringified = fmt.Sprintf("%d_%d", m, n)
+		memo[stringified] = res
+		return memo[stringified]
+
+	}
+
+	rt := dfs(m-1, n-1)
+	return rt
+
+}
+
+/*
+Input: nums = [1,2,-3,4]
+
+Output: 4
+Example 2:
+
+Input: nums = [-2,-1]
+
+Output: 2
+*/
+func maxProductBF(nums []int) int {
+
+	max := nums[0]
+
+	for i := 0; i < len(nums); i++ {
+		max_temp := nums[i]
+		for j := i + 1; j < len(nums); j++ {
+			max_temp = findMax(max_temp, nums[i]*nums[j])
+			if max_temp == max_temp || nums[i]*nums[j] < max_temp {
+				break
+			}
+		}
+		max = findMax(max, max_temp)
+
+	}
+
+	return max
+
+}
+
+/*
+
+1 2 -3 4
+
+
+*/
+
+func maxProductDPTopDown(nums []int) int {
+
+	max := math.MinInt32
+	var dfs func(index int, nums []int, sum int)
+	dfs = func(index int, nums []int, sum int) {
+
+		if index == len(nums) {
+			return
+		}
+
+		if sum > max {
+			max = sum
+		}
+
+		for i := index + 1; i < len(nums); i++ {
+			dfs(i, nums, nums[i]*sum)
+		}
+
+	}
+
+	dfs(0, nums, nums[0])
+
+	return max
+
+}
+
+/*
+Example 1:
+
+Input: s = "neetcode", wordDict = ["neet","code"]
+
+Output: true
+Explanation: Return true because "neetcode" can be split into "neet" and "code".
+
+Example 2:
+
+Input: s = "applepenapple", wordDict = ["apple","pen","ape"]
+
+Output: true
+
+func dfs(index int)
+
+	if index == len(s) {
+		found = true
+		return
+	}
+
+	for word in wordList {
+		n = len(word)
+		if len(word) < len(s) && s[index:n] == word
+			dfs(index + n)
+		}
+	}
+
+dfs(0)
+*/
+func wordBreak(s string, wordDict []string) bool {
+
+	var dfs func(index int) bool
+	dfs = func(index int) bool {
+		if index == len(s) {
+			return true
+		}
+
+		for _, val := range wordDict {
+			wordLen := len(val)
+
+			if wordLen < len(s) && s[index:wordLen] == val {
+
+				dfs(index + wordLen)
+
+			}
+
+		}
+
+	}
 
 }
