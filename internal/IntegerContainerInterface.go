@@ -11,7 +11,7 @@ type AbstractIntegerContainer struct {
 
 func (a *AbstractIntegerContainer) Add(value int) int {
 	// default implementation
-	return 0
+	return 1 + 1
 }
 
 func (a *AbstractIntegerContainer) Delete(value int) bool {

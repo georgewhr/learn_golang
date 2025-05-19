@@ -27,6 +27,18 @@ type Human struct {
 	age  *int
 }
 
+type File struct {
+	child    []*File
+	checksum uint64
+	name     string
+	date     uint64
+}
+
+type Node struct {
+	Val      int
+	Children []*Node
+}
+
 func test123(arr []int) {
 
 	arr = append(arr, 2)
@@ -35,9 +47,15 @@ func test123(arr []int) {
 
 func main() {
 
+	tt1 := internal.NewIntegerContainerImpl()
+	tt1.Add(1)
+	wordBreak("applefanap", []string{"fan", "apple", "ap"})
+
 	palindromeSubstringDP("aaa")
 
 	lisOwn([]int{4, 10, 4, 3, 8, 9})
+
+	lisDP([]int{1, 3, 6, 7, 9, 4, 10, 5, 6})
 
 	test := fibTopDown(10)
 	fmt.Println(test)
@@ -357,6 +375,8 @@ func main() {
 	var rightNode = &TreeNode{Val: 3}
 	rootNode.Left = leftNode
 	rootNode.Right = rightNode
+
+	invertBinaryTreeBFS2(rootNode)
 	// isValidBST2(rootNode)
 	// kSmallestBST(rootNode, 1)
 	// generateParenthesis(3)
@@ -4773,6 +4793,83 @@ func coinChangeCheckDepth(coins []int, amount int) int {
 	return globalCnt
 }
 
+/*[2, 3 5], 15
+
+2, 15, 13, 11, 9, 7, 5, 3, 1, -1
+3      12  9,
+
+ 1 2 3  5
+
+dp = make([]int, len(target))
+dp[0] = 0
+dp[1] = 15
+dp[2] = 1
+dp[3] = 2
+dp[4] = 2
+dp[5] = 1
+dp[6] = 2
+dp[7] = 2
+dp[8] = 2
+dp[9] = 3
+dp[10] = 2
+dp[11] = 15
+dp[12] = 3
+dp[13] = 3
+dp[14] = 4
+
+10 - 2 = 8
+10 - 3 =7
+10 -5 = 5
+
+4-2=2
+4-3=1
+
+for i =0 -> n{
+	for coin in coins {
+		if i - coin < 0{
+			continue
+		}
+		dp[i] = min(dp[i-coin]+1, dp[i])
+
+	}
+}
+2, 3 5
+
+0 0
+1 15
+2
+
+*/
+
+func coinChangeBottomUp(coins []int, amount int) int {
+	dp := make([]int, amount+1)
+
+	for i, _ := range dp {
+		dp[i] = amount + 1 // can be any big number greater than amount
+	}
+
+	dp[0] = 0
+
+	for i := 0; i < len(dp); i++ {
+
+		for _, coin := range coins {
+			if i-coin < 0 {
+				continue
+			}
+
+			dp[i] = findMin(dp[i], dp[i-coin]+1)
+		}
+
+	}
+
+	if dp[amount] == amount+1 {
+		return -1
+	} else {
+		return dp[amount]
+	}
+
+}
+
 func fib3(n int) int {
 	cache := make(map[int]int)
 
@@ -7948,8 +8045,19 @@ dfs(0)
 */
 func wordBreak(s string, wordDict []string) bool {
 
+	memo := make(map[int]int)
 	var dfs func(index int) bool
 	dfs = func(index int) bool {
+
+		if _, ok := memo[index]; ok {
+			if memo[index] == 1 {
+				return true
+			} else {
+				return false
+			}
+
+		}
+
 		if index == len(s) {
 			return true
 		}
@@ -7957,14 +8065,395 @@ func wordBreak(s string, wordDict []string) bool {
 		for _, val := range wordDict {
 			wordLen := len(val)
 
-			if wordLen < len(s) && s[index:wordLen] == val {
+			if index+wordLen <= len(s) && s[index:index+wordLen] == val {
 
-				dfs(index + wordLen)
+				if dfs(index + wordLen) {
+					memo[index] = 1
+					return true
+				}
+
+			}
+
+		}
+		memo[index] = 0
+
+		return false
+
+	}
+
+	return dfs(0)
+
+}
+
+/*
+Example 1:
+
+Input: nums = [9,1,4,2,3,3,7]
+
+0,3,1,3,2,3
+
+Output: 4,  1 2 3 7
+dp = make([]int, len(nums))
+
+0 1
+1 1
+2 2
+3 2
+4 3
+5 3
+6 4
+
+dp[i] = dp[i-1] + 1 if dp[i] > dp[0->i-1]
+
+	for i =0:n {
+	   for j = 0->i {
+		  if dp[i] > dp[j] {
+			 dp[i] = max(dp[i], dp[j] + 1)
+		  } else {
+			 dp[i] = max(dp[i], dp[j])
+		  }
+	   }
+	}
+
+Explanation: The longest increasing subsequence is [1,2,3,7], which has a length of 4.
+
+Example 2:
+
+Input: nums = [0,3,1,3,2,3]
+4 10 4
+
+Output: 4
+*/
+func lisDP(nums []int) int {
+
+	dp := make([]int, len(nums))
+
+	for i, _ := range dp {
+		dp[i] = 1
+	}
+
+	for i := 0; i < len(dp); i++ {
+		for j := 0; j <= i; j++ {
+			if nums[i] > nums[j] {
+				dp[i] = findMax(dp[i], dp[j]+1)
+			}
+
+		}
+
+	}
+
+	return dp[len(dp)-1]
+
+}
+
+/*
+Input: paths = ["root/a 1.txt(abcd) 2.txt(efgh)","root/c 3.txt(abcd)","root/c/d 4.txt(efgh)","root 4.txt(efgh)"]
+Output: [["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
+
+contecnt1 : [filePath]
+contecnt2 : [filePath]
+
+for path in pathts {
+	folder = getFolder(path)
+
+	for file in files {
+		content = getContent(file)
+		map[content] = append(map[content], folder + file)
+	}
+}
+
+
+*/
+
+func findDuplicateInFileSystemDFS(root *File) {
+
+	var dfs func(root *File)
+	dudupe := make(map[uint64][]string)
+	dfs = func(root *File) {
+
+		if root.child == nil {
+			if dudupe[root.checksum] == nil {
+				dudupe[root.checksum] = make([]string, 0)
+			}
+			dudupe[root.checksum] = append(dudupe[root.checksum], root.name)
+
+		}
+
+		for _, child := range root.child {
+			dfs(child)
+		}
+
+	}
+
+}
+
+func findDuplicateInFileSystemBFS(root *File) {
+
+	q := make([]*File, 0)
+	q = append(q, root)
+	dudupe := make(map[uint64][]string)
+
+	for len(q) > 0 {
+
+		l := len(q)
+
+		for i := 0; i < l; i++ {
+			node := q[0]
+			q = q[1:]
+
+			if node.child == nil {
+				if dudupe[root.checksum] == nil {
+					dudupe[root.checksum] = make([]string, 0)
+				}
+				dudupe[root.checksum] = append(dudupe[root.checksum], root.name)
+			} else {
+				for _, child := range root.child {
+					q = append(q, child)
+				}
 
 			}
 
 		}
 
 	}
+}
+
+/*
+redo trees
+*/
+
+func postorder(root *Node) []int {
+
+	res := make([]int, 0)
+	var dfs func(root *Node)
+	dfs = func(root *Node) {
+		if root == nil {
+			return
+		}
+
+		for _, child := range root.Children {
+			dfs(child)
+
+		}
+		res = append(res, root.Val)
+
+	}
+
+	dfs(root)
+	return res
+
+}
+
+func invertBinaryTree2nd(root *TreeNode) *TreeNode {
+
+	var dfs func(root *TreeNode)
+
+	dfs = func(root *TreeNode) {
+
+		if root == nil {
+			return
+		}
+
+		temp := root.Left
+		root.Left = root.Right
+		root.Right = temp
+
+		dfs(root.Left)
+		dfs(root.Right)
+
+	}
+	dfs(root)
+
+	return root
+
+}
+
+func invertBinaryTreeBFS2(root *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+	q := make([]*TreeNode, 0)
+
+	q = append(q, root)
+
+	for len(q) != 0 {
+		// ql := len(q)
+
+		// for range ql {
+		node := q[0]
+		if node == nil {
+			continue
+		}
+		temp := node.Left
+		node.Left = node.Right
+		node.Right = temp
+
+		q = q[1:]
+
+		if node.Left != nil {
+			q = append(q, node.Left)
+		}
+
+		if node.Right != nil {
+			q = append(q, node.Right)
+		}
+
+		// }
+	}
+	return root
+
+}
+
+func maxDepth3PreOrder(root *TreeNode) int {
+	var dfs func(root *TreeNode, depth int)
+	maxDepth := 1
+
+	if root == nil {
+		return 0
+	}
+
+	dfs = func(root *TreeNode, depth int) {
+
+		if root == nil {
+			return
+		}
+
+		if depth > maxDepth {
+			maxDepth = depth
+		}
+
+		if root.Left != nil {
+			dfs(root.Left, depth+1)
+		}
+
+		if root.Right != nil {
+			dfs(root.Right, depth+1)
+		}
+
+	}
+
+	dfs(root, 1)
+	return maxDepth
+}
+
+func maxDepth3PostOrder(root *TreeNode) int {
+	var dfs func(root *TreeNode) int
+
+	dfs = func(root *TreeNode) int {
+
+		if root == nil {
+			return 0
+		}
+
+		left := dfs(root.Left) + 1
+		right := dfs(root.Right) + 1
+
+		return findMax(left, right)
+
+	}
+
+	return dfs(root)
+}
+
+func diameterOfBinaryTree2(root *TreeNode) int {
+
+	var dfs func(root *TreeNode) int
+	maxLenth := 0
+
+	dfs = func(root *TreeNode) int {
+
+		if root == nil {
+			return 0
+		}
+
+		left := dfs(root.Left)
+		right := dfs(root.Right)
+
+		if left+right > maxLenth {
+			maxLenth = left + right
+		}
+		return findMax(left, right) + 1
+
+	}
+
+	dfs(root)
+	return maxLenth
+
+}
+
+func diameterOfBinaryTree2Preorder(root *TreeNode) int {
+
+	var dfs func(root *TreeNode, depth int)
+	maxLenthL := 0
+	maxLenthR := 0
+	max := 0
+
+	dfs = func(root *TreeNode, depth int) {
+
+		if root == nil {
+			return
+		}
+
+		maxLenthL = findMax(maxLenthL, depth)
+		if root.Left != nil {
+
+			dfs(root.Left, depth+1)
+		}
+
+		maxLenthR = findMax(maxLenthR, depth)
+
+		if root.Right != nil {
+			dfs(root.Left, depth+1)
+		}
+
+		max = findMax(max, maxLenthL+maxLenthR)
+
+	}
+
+	dfs(root, 0)
+	return max
+
+}
+
+func isSameTree2Pre(p *TreeNode, q *TreeNode) bool {
+
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil || q == nil || p.Val != q.Val {
+		return false
+	}
+
+	return isSameTree2Pre(p.Left, q.Left) && isSameTree2Pre(p.Right, q.Right)
+
+}
+
+func lcaDFS(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+	if root == p || root == q {
+		return root
+	}
+
+	left := lcaDFS(root.Left, p, q)
+	right := lcaDFS(root.Right, p, q)
+
+	if left != nil && right != nil {
+		return root
+	}
+
+	if left == nil {
+		return right
+	}
+
+	if right == nil {
+		return left
+	}
+
+	return nil
 
 }
