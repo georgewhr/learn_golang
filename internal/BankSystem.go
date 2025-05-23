@@ -83,6 +83,7 @@ type AcountInfo struct {
 	outGoingAmount     int
 	moneyWithDrawed    int
 	payMentInfo        map[string]*Payment
+	transferInfo       map[string]*Transfer
 }
 
 type Payment struct {
@@ -99,14 +100,17 @@ type Transfer struct {
 	time          string
 	amount        int
 	status        string
+	transferId    string
 }
 
 type BankingSystem struct {
-	bkSystem map[string]*AcountInfo
+	bkSystem        map[string]*AcountInfo
+	stagingTrasnfer map[string]*Transfer
+	trasnferCounts  int
 }
 
 func InitBankingSystem() *BankingSystem {
-	return &BankingSystem{bkSystem: make(map[string]*AcountInfo)}
+	return &BankingSystem{bkSystem: make(map[string]*AcountInfo), trasnferCounts: 0}
 }
 
 func (this *BankingSystem) CreateAccount(timeStamp int, accountId string) bool {
@@ -163,30 +167,52 @@ func (this *BankingSystem) GetPaymentStatus(timeStamp int, accountId string, pay
 	return false
 
 }
-func (this *BankingSystem) Transfer(timeStamp int, srcAccountId string, targetAccountId string, amount int) bool {
+func (this *BankingSystem) Transfer(timeStamp int, srcAccountId string, targetAccountId string, amount int) string {
 	if _, ok := this.bkSystem[srcAccountId]; !ok {
-		return false
+		return ""
 	}
 
 	if _, ok := this.bkSystem[targetAccountId]; !ok {
-		return false
+		return ""
 	}
 
 	if srcAccountId == targetAccountId {
-		return false
+		return ""
 	}
 
 	if amount < 0 {
-		return false
+		return ""
 	}
 
 	tempVal := this.bkSystem[srcAccountId].balance - amount
 
 	if tempVal < 0 {
-		return false
+		return ""
 	}
-	this.bkSystem[srcAccountId].balance = tempVal
-	this.bkSystem[targetAccountId].balance += tempVal
+
+	this.trasnferCounts++
+	tranId := fmt.Sprintf("transfer%d", this.trasnferCounts)
+	transfer := &Transfer{srcAccount: srcAccountId, transferId: tranId}
+	if _, ok := this.stagingTrasnfer[tranId]; !ok {
+		this.stagingTrasnfer[tranId] = transfer
+	} else {
+		return ""
+	}
+
+	// this.bkSystem[srcAccountId].balance = tempVal
+	// this.bkSystem[targetAccountId].balance += tempVal
+	return tranId
+
+}
+
+func (this *BankingSystem) AcceptTransfer(timeStamp int, accountId string, transferId string) bool {
+
+	/*
+		Check if transfer is valid
+		then update to src account and target account
+
+	*/
+
 	return true
 
 }

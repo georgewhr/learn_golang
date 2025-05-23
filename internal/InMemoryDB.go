@@ -200,7 +200,7 @@ func (this *InMemoryDB) GetAt(key string, field string, time string) string {
 		return ""
 	}
 
-	if this.db[k].ttl < convertStrInt(time) {
+	if this.db[k].ttl > convertStrInt(time) {
 		return this.db[k].value
 	}
 

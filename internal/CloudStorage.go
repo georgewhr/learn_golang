@@ -404,7 +404,7 @@ func (this *CloudStorage) AddFileBy(userId string, file string, filesize string)
 	if usedSize > this.users[userId].capacity {
 		return false
 	}
-	this.cs[k].owner = append(this.cs[k].owner, userId)
+	this.cs[k].owner = append(this.cs[k].owner, userId) // don't need to put owner as part of files
 	this.users[userId].ownedFiles = append(this.users[userId].ownedFiles, file)
 	this.users[userId].usedSize = usedSize
 	return true

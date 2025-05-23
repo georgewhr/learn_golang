@@ -47,6 +47,18 @@ func test123(arr []int) {
 
 func main() {
 
+	// t := []int{4, 9}
+
+	// fmt.Print(len(t[3:]))
+
+	arr := [][]int{
+		{20, 15, 1},
+		{20, 17, 0},
+		{50, 20, 1},
+		{50, 80, 0},
+		{80, 19, 1},
+	}
+	createBinaryTree(arr)
 	tt1 := internal.NewIntegerContainerImpl()
 	tt1.Add(1)
 	wordBreak("applefanap", []string{"fan", "apple", "ap"})
@@ -225,17 +237,17 @@ func main() {
 	// cloudStorage.Copy("/dir101/file1001.mp3", "/dir100/copy1/file100.mp3")
 	// cloudStorage.UpdateCapacity("george", "50")
 
-	bank := internal.InitBankingSystem()
-	bank.CreateAccount(100, "george")
-	bank.CreateAccount(120, "vera")
-	bank.Deposit(130, "george", 100)
-	bank.Deposit(130, "vera", 200)
-	bank.Pay("200", "george", 20)
-	bank.Pay("201", "vera", 15)
-	bank.Pay("202", "george", 40)
-	bank.Transfer(300, "george", "vera", 5)
-	bank.Withdraw(400, "george", 10)
-	bank.GetPaymentStatus(86500000, "george", "george_0")
+	// bank := internal.InitBankingSystem()
+	// bank.CreateAccount(100, "george")
+	// bank.CreateAccount(120, "vera")
+	// bank.Deposit(130, "george", 100)
+	// bank.Deposit(130, "vera", 200)
+	// bank.Pay("200", "george", 20)
+	// bank.Pay("201", "vera", 15)
+	// bank.Pay("202", "george", 40)
+	// bank.Transfer(300, "george", "vera", 5)
+	// bank.Withdraw(400, "george", 10)
+	// bank.GetPaymentStatus(86500000, "george", "george_0")
 
 	// cloudStorage.AddFileBy("george", "/dir102/file1001.mp3", "50")
 
@@ -376,6 +388,7 @@ func main() {
 	rootNode.Left = leftNode
 	rootNode.Right = rightNode
 
+	constructBTPreInorder([]int{1, 2, 3}, []int{2, 1, 3})
 	invertBinaryTreeBFS2(rootNode)
 	// isValidBST2(rootNode)
 	// kSmallestBST(rootNode, 1)
@@ -8456,4 +8469,675 @@ func lcaDFS(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
 
 	return nil
 
+}
+
+func isBalacnedTree(root *TreeNode) bool {
+
+	ret := true
+
+	var dfs func(root *TreeNode) int
+
+	dfs = func(root *TreeNode) int {
+
+		if ret == false {
+			return -1
+		}
+		if root == nil {
+			return 0
+		}
+
+		left := dfs(root.Left) + 1
+		right := dfs(root.Right) + 1
+
+		if absolute(left, right) > 1 {
+			ret = false
+		}
+
+		return findMax(left, right)
+
+	}
+
+	if dfs(root) == -1 {
+		return false
+	}
+
+	return ret
+
+}
+
+func isSameTree3(p *TreeNode, q *TreeNode) bool {
+	if p == nil && q == nil {
+		return true
+	}
+
+	if p == nil || q == nil || (p.Val != p.Val) {
+		return false
+	}
+
+	return isSameTree3(p.Left, q.Left) && isSameTree3(p.Right, q.Right)
+}
+
+func subTreeOfAnotherTree3(root *TreeNode, subRoot *TreeNode) bool {
+
+	if root == nil && subRoot == nil {
+		return true
+	}
+
+	if isSameTree3(root, subRoot) {
+		return true
+	}
+
+	return subTreeOfAnotherTree3(root.Left, subRoot) || subTreeOfAnotherTree3(root.Right, subRoot)
+
+}
+
+/*
+
+
+dfs(low, high)
+
+mid = low + (high-low) / 2
+if root == nil {
+	return TreeNode(nums[mid])
+
+}
+
+root.Left = traverse(low, mid-1, root)
+root.Right = traverse(mid+1, high, root])
+
+
+
+dfs(0, len(nums)/2, root)
+*/
+
+func convertSortedArraytoBST(nums []int) *TreeNode {
+
+	var dfs func(nums []int) *TreeNode
+
+	dfs = func(nums []int) *TreeNode {
+
+		if len(nums) == 0 {
+			return nil
+		}
+
+		mid := len(nums) / 2
+
+		root := &internal.TreeNode{Val: nums[mid]}
+
+		root.Left = dfs(nums[:mid])
+		root.Right = dfs(nums[mid+1:])
+		return root
+
+	}
+
+	return dfs(nums)
+
+}
+
+/*
+
+if root and root2 are not nil {
+	root.Val += root2.val
+}
+
+
+*/
+
+func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+
+	var traverse func(root1 *TreeNode, root2 *TreeNode) *TreeNode
+
+	traverse = func(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+		if root1 == nil && root2 == nil {
+			return nil
+		}
+
+		var root *TreeNode
+		if root1 != nil && root2 != nil {
+			root = &internal.TreeNode{Val: root1.Val + root2.Val}
+			root.Left = traverse(root1.Left, root2.Left)
+			root.Right = traverse(root1.Right, root2.Right)
+
+		} else if root1 != nil {
+			root = &internal.TreeNode{Val: root1.Val}
+			root.Left = traverse(root1.Left, nil)
+			root.Right = traverse(root1.Right, nil)
+
+		} else {
+			root = &internal.TreeNode{Val: root2.Val}
+			root.Left = traverse(nil, root2.Left)
+			root.Right = traverse(nil, root2.Right)
+		}
+
+		return root
+
+	}
+
+	return traverse(root1, root2)
+
+}
+
+func hasPathSum(root *TreeNode, targetSum int) bool {
+
+	if root == nil {
+		return false
+	}
+
+	if targetSum-root.Val == 0 && root.Left == nil && root.Right == nil {
+		return true
+	}
+
+	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val)
+
+}
+
+func rangeSumBST(root *TreeNode, low int, high int) int {
+
+	res := 0
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+
+		traverse(root.Left)
+		if root.Val >= low && root.Val <= high {
+			res += root.Val
+
+		}
+		traverse(root.Right)
+	}
+
+	traverse(root)
+
+	return res
+
+}
+
+func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
+
+	r1 := make([]int, 0)
+	r2 := make([]int, 0)
+	var traverse func(root *TreeNode, r *[]int)
+
+	traverse = func(root *TreeNode, r *[]int) {
+		if root == nil {
+			return
+		}
+
+		traverse(root.Left, r)
+		traverse(root.Right, r)
+		*r = append(*r, root.Val)
+
+	}
+
+	traverse(root1, &r1)
+	traverse(root2, &r2)
+
+	if len(r1) != len(r2) {
+		return false
+	}
+
+	for i, _ := range r1 {
+		if r1[i] != r2[i] {
+			return false
+		}
+	}
+
+	return true
+
+}
+
+/*
+Input: descriptions = [[20,15,1],[20,17,0],[50,20,1],[50,80,0],[80,19,1]]
+Output: [50,20,80,15,17,19]
+parent, child, isLeft
+
+1. find the root node
+2. flat the node and make tree structure, then connect them together
+3. return the root node
+
+
+*/
+
+func createBinaryTree(descriptions [][]int) *TreeNode {
+
+	table := make(map[int][]int, 0)
+
+	for _, val := range descriptions {
+		if _, ok := table[val[0]]; !ok {
+			table[val[0]] = make([]int, 2)
+		}
+		if val[2] == 1 {
+			table[val[0]][0] = val[1]
+		} else {
+			table[val[0]][1] = val[1]
+		}
+	}
+
+	rootV := findRoot(table)
+
+	var dfs func(num int) *TreeNode
+
+	dfs = func(num int) *TreeNode {
+
+		root := &internal.TreeNode{Val: num}
+
+		if _, ok := table[num]; ok {
+			// return nil
+
+			if table[num][0] != 0 {
+				root.Left = dfs(table[num][0])
+			}
+
+			if table[num][1] != 0 {
+				root.Right = dfs(table[num][1])
+			}
+		}
+
+		return root
+
+	}
+	t := dfs(rootV)
+
+	return t
+}
+
+func findRoot(table map[int][]int) int {
+
+	for k, _ := range table {
+		flag := 0
+		for _, v1 := range table {
+
+			for _, val := range v1 {
+				if k == val {
+					flag = 1
+				}
+			}
+
+		}
+
+		if flag == 0 {
+			return k
+		}
+	}
+
+	return 0
+}
+
+/*
+
+if root == nil {
+	return nil
+}
+
+if root == p || root == q {
+	return root
+}
+
+left := postTraver(root.Left, p, q)
+right := postTraver(root.Right, p, q)
+
+if left != nil && right !=nil {
+	return root
+}
+
+if left != nil {
+	return left
+}
+
+if right != nil {
+	return right
+}
+
+
+
+return nil
+
+
+
+
+*/
+
+func lowestCommonAncestor3(root *TreeNode, p *TreeNode, q *TreeNode) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if root == p || root == q {
+		return root
+	}
+
+	left := lowestCommonAncestor3(root.Left, p, q)
+	right := lowestCommonAncestor3(root.Right, p, q)
+
+	if left != nil && right != nil {
+		return root
+	}
+
+	if left != nil {
+		return left
+	}
+
+	if right != nil {
+		return right
+	}
+	return nil
+
+}
+
+func insertBST(root *TreeNode, val int) *TreeNode {
+	if root == nil {
+		return &internal.TreeNode{Val: val}
+	}
+
+	if val < root.Val {
+		root.Left = insertBST(root.Left, val)
+	}
+
+	if val > root.Val {
+		root.Right = insertBST(root.Right, val)
+	}
+
+	return root
+
+}
+
+/*
+
+if node does not have any children, return nil
+if ndoe has one child, replace the node with the child
+if node has 2 children, pick the smallest from left and replace it with deleted node,
+then delete the picked minimum value, recursively
+
+
+
+
+
+
+
+*/
+
+func deletenodeBST(root *TreeNode, key int) *TreeNode {
+
+	if root == nil {
+		return nil
+	}
+
+	if root.Val == key {
+		if root.Left != nil && root.Right != nil {
+
+			minVal := bstGetMinValue(root.Left)
+			root.Val = minVal
+			return deletenodeBST(root.Left, minVal)
+
+		}
+
+		if root.Left != nil {
+			temp := root
+			root = root.Left
+			return temp
+
+		}
+
+		if root.Right != nil {
+			temp := root
+			root = root.Right
+			return temp
+		}
+	}
+
+	if key < root.Val {
+		deletenodeBST(root.Left, key)
+	} else {
+		deletenodeBST(root.Right, key)
+	}
+
+	return root
+
+}
+
+func bstGetMinValue(root *TreeNode) int {
+
+	if root.Left == nil {
+		return root.Val
+	}
+
+	return bstGetMinValue(root.Left)
+
+}
+
+func btLevelOrder(root *TreeNode) [][]int {
+
+	if root == nil {
+		return nil
+	}
+
+	ret := make([][]int, 0)
+	q := make([]*TreeNode, 0)
+
+	q = append(q, root)
+
+	for len(q) != 0 {
+		temp := make([]int, 0)
+
+		l := len(q)
+
+		for i := 0; i < l; i++ {
+			node := q[0]
+
+			q = q[1:]
+			temp = append(temp, node.Val)
+
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+
+		ret = append(ret, temp)
+
+	}
+
+	return ret
+}
+
+func btRightView(root *TreeNode) []int {
+
+	ret := make([]int, 0)
+
+	var dfs func(root *TreeNode, level int)
+	dfs = func(root *TreeNode, level int) {
+		if root == nil {
+			return
+		}
+
+		if level == len(ret) {
+			ret = append(ret, root.Val)
+		}
+
+		dfs(root.Right, level+1)
+
+		dfs(root.Left, level+1)
+	}
+
+	dfs(root, 0)
+
+	return ret
+
+}
+
+/*
+maintain a max number at every traverse
+
+
+*/
+
+func goodNodesTree2(root *TreeNode) int {
+
+	res := 0
+	var dfs func(root *TreeNode, max int)
+	max := math.MinInt64
+
+	dfs = func(root *TreeNode, max int) {
+		if root == nil {
+			return
+		}
+
+		if root.Val > max {
+			res++
+			max = root.Val
+		}
+
+		dfs(root.Left, max)
+		dfs(root.Right, max)
+
+	}
+
+	dfs(root, max)
+
+	return res
+
+}
+
+func isValidBST3(root *TreeNode) bool {
+
+	if root == nil {
+		return true
+	}
+	if root.Left == nil && root.Right == nil {
+		return true
+	}
+
+	if root.Left != nil && root.Val <= root.Left.Val {
+
+		return false
+
+	}
+
+	if root.Right != nil && root.Val >= root.Right.Val {
+
+		return false
+
+	}
+
+	return isValidBST3(root.Left) && isValidBST3(root.Right)
+
+}
+
+func isValidBSTPostOrder(root *TreeNode) bool {
+
+	max := math.MinInt64
+	res := true
+	var dfs func(root *TreeNode)
+
+	dfs = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+
+		dfs(root.Left)
+
+		if root.Val <= max {
+			res = false
+		} else {
+			max = root.Val
+		}
+		dfs(root.Right)
+
+	}
+
+	dfs(root)
+	return res
+}
+
+func kthSmallest(root *TreeNode, k int) int {
+
+	res := 0
+	var dfs func(root *TreeNode)
+
+	dfs = func(root *TreeNode) {
+
+		if root == nil {
+			return
+		}
+
+		dfs(root.Left)
+		if k == 1 {
+			res = root.Val
+
+		}
+		k--
+
+		dfs(root.Right)
+
+	}
+
+	dfs(root)
+	return res
+}
+
+/*
+ preorder: 1 2 5 6 3 7 4
+ inorder:  5 2 6 1 7 3 4
+
+ get first index node from preorder as parent
+ indexOfParent = len(inorder) / 2 in inorder array.
+ build a node
+ node.Left = dfs(inorder[:indexOfParent-1])
+ node.Right = dfs(inorder[indexOfParent+1:])
+ return node
+
+
+ preorder: 1 2 5 6 3 7 4
+ inorder:  5 2 6 1 7 3 4
+
+
+ pre oreder, inoreder pattern
+
+
+*/
+
+func constructBTPreInorder(preorder []int, inorder []int) *TreeNode {
+
+	var dfs func(preorder []int, inorder []int) *TreeNode
+
+	dfs = func(preorder []int, inorder []int) *TreeNode {
+
+		if len(preorder) == 0 {
+			return nil
+		}
+
+		rootVal := preorder[0]
+
+		indexOfRoot := findRootIndex(inorder, rootVal)
+
+		root := &internal.TreeNode{Val: rootVal}
+
+		root.Left = dfs(preorder[1:indexOfRoot+1], inorder[:indexOfRoot])
+		root.Right = dfs(preorder[indexOfRoot+1:], inorder[indexOfRoot+1:])
+
+		return root
+	}
+
+	root := dfs(preorder, inorder)
+
+	return root
+
+}
+
+func findRootIndex(arr []int, rootVal int) int {
+
+	for i, _ := range arr {
+		if rootVal == arr[i] {
+			return i
+		}
+	}
+
+	return -1
 }
