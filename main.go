@@ -119,7 +119,8 @@ func main() {
 
 	letterCombinations("34")
 
-	islandPerimeter([][]int{{0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}})
+	islandPerimeter2([][]int{{0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}})
+	// islandPerimeter([][]int{{0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}})
 	leastInterval([]int{2, 2, 3, 4, 5}, 3)
 	minHeap := internal.MinHeapConstructor(10)
 	minHeap.InsertVal(10)
@@ -9140,4 +9141,106 @@ func findRootIndex(arr []int, rootVal int) int {
 	}
 
 	return -1
+}
+
+/*
+	if root == nil {
+		return nil
+	}
+
+root.left = dfs(root.left)
+root.right = dfs(root.right)
+
+	if root.val == target && (root.left == nil && root.right == nil){
+		return nil
+	}
+
+return root
+*/
+func removeLeafNodes(root *TreeNode, target int) *TreeNode {
+	if root == nil {
+		return nil
+	}
+
+	root.Left = removeLeafNodes(root.Left, target)
+	root.Right = removeLeafNodes(root.Right, target)
+
+	if root.Val == target && (root.Left == nil && root.Right == nil) {
+		return nil
+	}
+
+	return root
+
+}
+
+/*
+appraoch,
+DFS, iterate every island spot, with below base conditions.
+The coordiante is in boundary , e.g, in the water close to island or if i,j is island AND i-1 == -1
+
+*/
+
+func islandPerimeter2(grid [][]int) int {
+
+	m := len(grid)
+	n := len(grid[0])
+
+	p := 0
+
+	visted := make(map[[2]int]bool, 0)
+
+	var dfs func(i int, j int)
+
+	dfs = func(i int, j int) {
+
+		if i >= m || j >= n || i < 0 || j < 0 || grid[i][j] == 0 {
+			p++
+			return
+		}
+
+		visitedSpot := [2]int{i, j}
+		if _, ok := visted[visitedSpot]; ok {
+			return
+		}
+
+		visted[visitedSpot] = true
+
+		dfs(i+1, j)
+		dfs(i, j+1)
+		dfs(i-1, j)
+		dfs(i, j-1)
+
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+
+			if grid[i][j] == 1 {
+				dfs(i, j)
+			}
+
+		}
+	}
+
+	return p
+
+}
+
+func checkIfLexicographical(words []string, order string) bool {
+
+	if len(words) <= 1 {
+		return true
+	}
+
+	index := 0
+	for i := 1; i < len(words); i++ {
+		preWord := words[i-1]
+		currWord := words[i]
+
+	}
+
+}
+
+func isAlienSorted(words []string, order string) bool {
+
 }
